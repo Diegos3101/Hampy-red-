@@ -444,16 +444,24 @@
           </div>
 
 <div class="form-group">
-            <label>Medicamentos Disponibles (Nombre, concentración y cantidad aprox.)</label>
-            <textarea id="reg-meds" class="form-control" rows="3" placeholder="Ej: Paracetamol 500mg (2 cajas), Amoxicilina 500mg (1 frasco)" required></textarea>
-            <span style="font-size:0.75rem; color:var(--muted);">Se registrarán de inmediato en la red para su posterior validación sanitaria.</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <label style="margin-bottom:0;">Medicamentos a Donar (con fecha individual)</label>
+              <button type="button" class="btn btn-outline-blue btn-sm" onclick="addMedRow()">
+                + Agregar otro medicamento
+              </button>
+            </div>
+            
+            <div id="meds-stack-container" style="display:flex; flex-direction:column; gap:10px;">
+              <div class="med-item-row" style="background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:12px; display:grid; grid-template-columns:1.5fr 0.7fr 1.2fr 36px; gap:8px; align-items:center;">
+                <input type="text" class="form-control med-name-input" placeholder="Medicamento (Ej: Paracetamol 500mg)" required>
+                <input type="number" class="form-control med-qty-input" placeholder="Cant." min="1" value="1" required>
+                <input type="date" class="form-control med-exp-input" required>
+                <button type="button" class="btn btn-outline-red btn-sm" style="padding:4px; height:36px; font-weight:bold;" onclick="removeMedRow(this)" title="Eliminar fila">✕</button>
+              </div>
+            </div>
+            <span style="font-size:0.75rem; color:var(--muted); display:block; margin-top:6px;">Puedes agregar tantos medicamentos como desees con el botón "+ Agregar otro medicamento".</span>
           </div>
-
-          <div class="form-group">
-            <label>Fecha de Vencimiento del Medicamento</label>
-            <input type="date" id="reg-exp" class="form-control" required>
-          </div>
-
+  
           <button type="submit" class="btn btn-red" style="width:100%; margin-top:8px;">
             Completar Registro y Sumarme a Hampi Red
           </button>
@@ -676,58 +684,96 @@
         status: "verde"
       });
 
+function addMedRow() {
+      var container = document.getElementById("meds-stack-container");
+      if (!container) return;
+      var row = document.createElement("div");
+      row.className = "med-item-row";
+      row.style.cssText = "background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:12px; display:grid; grid-template-columns:1.5fr 0.7fr 1.2fr 36px; gap:8px; align-items:center;";
+      row.innerHTML = '<input type="text" class="form-control med-name-input" placeholder="Medicamento (Ej: Amoxicilina 500mg)" required>' +
+                      '<input type="number" class="form-control med-qty-input" placeholder="Cant." min="1" value="1" required>' +
+                      '<input type="date" class="form-control med-exp-input" required>' +
+                      '<button type="button" class="btn btn-outline-red btn-sm" style="padding:4px; height:36px; font-weight:bold;" onclick="removeMedRow(this)" title="Eliminar fila">✕</button>';
+      container.appendChild(row);
+    }
+
+    function removeMedRow(btn) {
+      var container = document.getElementById("meds-stack-container");
+      if (!container) return;
+      var rows = container.querySelectorAll(".med-item-row");
+      if (rows.length > 1) {
+        btn.parentElement.remove();
+      } else {
+        alert("Debes registrar al menos un medicamento.");
+      }
+    }
+
+    function submitRegister() {
+      var nombre = document.getElementById("reg-fullname").value.trim();
+      var dni = document.getElementById("reg-dni").value.trim();
+      var edad = document.getElementById("reg-edad").value.trim();
+      var provincia = document.getElementById("reg-provincia").value.trim();
+      var distrito = document.getElementById("reg-distrito").value.trim();
+
+      if (dni.length !== 8 || isNaN(dni)) {
+        alert("Por favor, ingresa un DNI valido de 8 digitos.");
+        return;
+      }
+
+      var rows = document.querySelectorAll(".med-item-row");
+      var medsAdded = 0;
+
+      for (var i = 0; i < rows.length; i++) {
+        var row = rows[i];
+        var medName = row.querySelector(".med-name-input").value.trim();
+        var medQty = parseInt(row.querySelector(".med-qty-input").value) || 1;
+        var medExp = row.querySelector(".med-exp-input").value;
+
+        if (medName && medExp) {
+          inventory.unshift({
+            id: Date.now() + i,
+            med: medName,
+            qty: medQty,
+            lot: "DNI-" + dni.substring(4) + "-" + (i + 1),
+            exp: medExp,
+            donor: nombre + " (" + distrito + ", " + provincia + ")",
+            location: distrito + ", " + provincia,
+            status: "verde"
+          });
+          medsAdded++;
+        }
+      }
+
+      if (medsAdded === 0) {
+        alert("Por favor completa al menos un medicamento con su fecha de vencimiento.");
+        return;
+      }
+
+      registeredUser = {
+        nombre: nombre,
+        dni: dni,
+        edad: edad,
+        provincia: provincia,
+        distrito: distrito
+      };
+
+      livePeopleCount += 1;
+      var counterEl = document.getElementById("cnt-personas");
+      if (counterEl) {
+        counterEl.innerText = livePeopleCount.toLocaleString();
+      }
+
       var banner = document.getElementById("user-welcome-banner");
       var text = document.getElementById("user-welcome-text");
       if (banner && text) {
-        text.innerHTML = "👤 Donante Registrado en Hampi Red: <strong>" + nombre + "</strong> (DNI: " + dni + ") — " + distrito + ", " + provincia + " (" + edad + " anos).";
+        text.innerHTML = "👤 Donante Registrado en Hampi Red: <strong>" + nombre + "</strong> (DNI: " + dni + ") — " + distrito + ", " + provincia + " (" + edad + " años).";
         banner.style.display = "block";
       }
 
       renderInventory();
-      alert("¡Registro completado con exito en Hampi Red, " + nombre + "! Tus medicamentos disponibles han sido agregados al inventario.");
+      alert("¡Registro completado con exito en Hampi Red, " + nombre + "! Se han agregado " + medsAdded + " medicamento(s) con sus fechas individuales al inventario.");
       showView("v-excedentes");
     }
-
-    function renderInventory() {
-      var tbody = document.getElementById("tbl-excedentes");
-      if (!tbody) return;
-      tbody.innerHTML = "";
-
-      for (var i = 0; i < inventory.length; i++) {
-        var item = inventory[i];
-        var tr = document.createElement("tr");
-        var badgeClass = item.status === "verde" ? "badge-verde" : "badge-amarillo";
-        var badgeText = item.status === "verde" ? "● Verde Apto" : "● Amarillo Revision";
-        tr.innerHTML = "<td><strong>" + item.med + "</strong><br><span style=\"font-size:0.75rem; color:var(--muted);\">" + item.donor + "</span></td>" +
-                       "<td>" + item.qty + "</td>" +
-                       "<td>" + item.lot + "</td>" +
-                       "<td><span class=\"badge " + badgeClass + "\">" + badgeText + "</span></td>";
-        tbody.appendChild(tr);
-      }
-      renderMatches();
-    }
-
-    function submitExcedente() {
-      var med = document.getElementById("ex-med").value;
-      var lot = document.getElementById("ex-lote").value;
-      var qty = parseInt(document.getElementById("ex-qty").value);
-      var exp = document.getElementById("ex-date").value;
-      var pack = document.getElementById("ex-pack").value;
-      var donorName = registeredUser ? (registeredUser.nombre + " (" + registeredUser.distrito + ")") : "Donante Hampi Red";
-
-      inventory.unshift({
-        id: Date.now(),
-        med: med,
-        qty: qty,
-        lot: lot,
-        exp: exp,
-        donor: donorName,
-        status: pack
-      });
-
-      renderInventory();
-      alert("Excedente registrado en el inventario.");
-      showView("v-excedentes");
     }
 
     function submitNecesidad() {
