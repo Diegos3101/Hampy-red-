@@ -406,7 +406,7 @@
       </div>
     </div>
 
-    <!-- 3. REGISTRO DE USUARIOS -->
+    <!-- 3. REGISTRO DE USUARIOS CON STACK DINÁMICO -->
     <div id="v-registro" class="view">
       <div class="card" style="max-width:680px; margin:0 auto; border-top:5px solid var(--red);">
         <h2 style="font-size:1.6rem; font-weight:800; margin-bottom:6px; color:var(--navy);">
@@ -420,7 +420,7 @@
           <div class="grid-2" style="margin-bottom:0;">
             <div class="form-group">
               <label>Nombre Completo</label>
-              <input type="text" id="reg-fullname" class="form-control" placeholder="Ej: Jorge Ismael llanos Perez" required>
+              <input type="text" id="reg-fullname" class="form-control" placeholder="Ej: Jorge Ismael Llanos Pérez" required>
             </div>
             <div class="form-group">
               <label>DNI (8 dígitos)</label>
@@ -443,7 +443,8 @@
             </div>
           </div>
 
-<div class="form-group">
+          <!-- STACK DINÁMICO DE MEDICAMENTOS -->
+          <div class="form-group">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
               <label style="margin-bottom:0;">Medicamentos a Donar (con fecha individual)</label>
               <button type="button" class="btn btn-outline-blue btn-sm" onclick="addMedRow()">
@@ -461,12 +462,13 @@
             </div>
             <span style="font-size:0.75rem; color:var(--muted); display:block; margin-top:6px;">Puedes agregar tantos medicamentos como desees con el botón "+ Agregar otro medicamento".</span>
           </div>
-  
+
           <button type="submit" class="btn btn-red" style="width:100%; margin-top:8px;">
             Completar Registro y Sumarme a Hampi Red
           </button>
         </form>
       </div>
+    </div>
 
     <!-- 4. MIS EXCEDENTES -->
     <div id="v-excedentes" class="view">
@@ -645,46 +647,7 @@
       }
     }
 
-    function submitRegister() {
-      var nombre = document.getElementById("reg-fullname").value.trim();
-      var dni = document.getElementById("reg-dni").value.trim();
-      var edad = document.getElementById("reg-edad").value.trim();
-      var provincia = document.getElementById("reg-provincia").value.trim();
-      var distrito = document.getElementById("reg-distrito").value.trim();
-      var meds = document.getElementById("reg-meds").value.trim();
-
-      if (dni.length !== 8 || isNaN(dni)) {
-        alert("Por favor, ingresa un DNI valido de 8 digitos.");
-        return;
-      }
-
-      registeredUser = {
-        nombre: nombre,
-        dni: dni,
-        edad: edad,
-        provincia: provincia,
-        distrito: distrito,
-        meds: meds
-      };
-
-      livePeopleCount += 1;
-      var counterEl = document.getElementById("cnt-personas");
-      if (counterEl) {
-        counterEl.innerText = livePeopleCount.toLocaleString();
-      }
-
-      inventory.unshift({
-        id: Date.now(),
-        med: meds,
-        qty: 1,
-        lot: "DNI-" + dni.substring(4),
-        exp: "2027-01-01",
-        donor: nombre + " (" + distrito + ", " + provincia + ")",
-        location: distrito + ", " + provincia,
-        status: "verde"
-      });
-
-function addMedRow() {
+    function addMedRow() {
       var container = document.getElementById("meds-stack-container");
       if (!container) return;
       var row = document.createElement("div");
@@ -725,22 +688,28 @@ function addMedRow() {
 
       for (var i = 0; i < rows.length; i++) {
         var row = rows[i];
-        var medName = row.querySelector(".med-name-input").value.trim();
-        var medQty = parseInt(row.querySelector(".med-qty-input").value) || 1;
-        var medExp = row.querySelector(".med-exp-input").value;
+        var nameInput = row.querySelector(".med-name-input");
+        var qtyInput = row.querySelector(".med-qty-input");
+        var expInput = row.querySelector(".med-exp-input");
 
-        if (medName && medExp) {
-          inventory.unshift({
-            id: Date.now() + i,
-            med: medName,
-            qty: medQty,
-            lot: "DNI-" + dni.substring(4) + "-" + (i + 1),
-            exp: medExp,
-            donor: nombre + " (" + distrito + ", " + provincia + ")",
-            location: distrito + ", " + provincia,
-            status: "verde"
-          });
-          medsAdded++;
+        if (nameInput && expInput) {
+          var medName = nameInput.value.trim();
+          var medQty = parseInt(qtyInput.value) || 1;
+          var medExp = expInput.value;
+
+          if (medName && medExp) {
+            inventory.unshift({
+              id: Date.now() + i,
+              med: medName,
+              qty: medQty,
+              lot: "DNI-" + dni.substring(4) + "-" + (i + 1),
+              exp: medExp,
+              donor: nombre + " (" + distrito + ", " + provincia + ")",
+              location: distrito + ", " + provincia,
+              status: "verde"
+            });
+            medsAdded++;
+          }
         }
       }
 
@@ -766,7 +735,7 @@ function addMedRow() {
       var banner = document.getElementById("user-welcome-banner");
       var text = document.getElementById("user-welcome-text");
       if (banner && text) {
-        text.innerHTML = "👤 Donante Registrado en Hampi Red: <strong>" + nombre + "</strong> (DNI: " + dni + ") — " + distrito + ", " + provincia + " (" + edad + " años).";
+        text.innerHTML = "👤 Donante Registrado en Hampi Red: <strong>" + nombre + "</strong> (DNI: " + dni + ") — " + distrito + ", " + provincia + " (" + edad + " anos).";
         banner.style.display = "block";
       }
 
@@ -774,6 +743,47 @@ function addMedRow() {
       alert("¡Registro completado con exito en Hampi Red, " + nombre + "! Se han agregado " + medsAdded + " medicamento(s) con sus fechas individuales al inventario.");
       showView("v-excedentes");
     }
+
+    function renderInventory() {
+      var tbody = document.getElementById("tbl-excedentes");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      for (var i = 0; i < inventory.length; i++) {
+        var item = inventory[i];
+        var tr = document.createElement("tr");
+        var badgeClass = item.status === "verde" ? "badge-verde" : "badge-amarillo";
+        var badgeText = item.status === "verde" ? "● Verde Apto" : "● Amarillo Revision";
+        tr.innerHTML = "<td><strong>" + item.med + "</strong><br><span style=\"font-size:0.75rem; color:var(--muted);\">" + item.donor + "</span></td>" +
+                       "<td>" + item.qty + "</td>" +
+                       "<td>" + item.lot + "</td>" +
+                       "<td><span class=\"badge " + badgeClass + "\">" + badgeText + "</span></td>";
+        tbody.appendChild(tr);
+      }
+      renderMatches();
+    }
+
+    function submitExcedente() {
+      var med = document.getElementById("ex-med").value;
+      var lot = document.getElementById("ex-lote").value;
+      var qty = parseInt(document.getElementById("ex-qty").value);
+      var exp = document.getElementById("ex-date").value;
+      var pack = document.getElementById("ex-pack").value;
+      var donorName = registeredUser ? (registeredUser.nombre + " (" + registeredUser.distrito + ")") : "Donante Hampi Red";
+
+      inventory.unshift({
+        id: Date.now(),
+        med: med,
+        qty: qty,
+        lot: lot,
+        exp: exp,
+        donor: donorName,
+        status: pack
+      });
+
+      renderInventory();
+      alert("Excedente registrado en el inventario.");
+      showView("v-excedentes");
     }
 
     function submitNecesidad() {
