@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hampi Red - Medicamentos que llegan más lejos</title>
+  <style>
+    :root {
+      --blue: #00a2ff;
+      --blue-dark: #0284c7;
+      --blue-light: #f0f9ff;
+      --red: #ff4757;
+      --red-dark: #e84118;
+      --red-light: #fff1f2;
+      --navy: #0f172a;
+      --slate: #1e293b;
+      --muted: #64748b;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --green: #10b981;
+      --green-bg: #d1fae5;
+      --yellow: #f59e0b;
+      --yellow-bg: #fef3c7;
+      --radius: 16px;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03);
+      --shadow-lg: 0 12px 24px -4px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Nunito", sans-serif; }
+    body { background: var(--bg); color: var(--slate); display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* Barra Superior */
+    .app-nav {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .brand-group { display: flex; align-items: center; gap: 12px; cursor: pointer; text-decoration: none; }
+    .brand-name { font-size: 1.45rem; font-weight: 900; letter-spacing: -0.5px; display: flex; gap: 4px; }
+    .brand-blue { color: var(--blue); }
+    .brand-red { color: var(--red); }
+    .brand-slogan { font-size: 0.72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .nav-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0; }
+    .tab-btn {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { color: var(--blue-dark); border-color: var(--blue); background: var(--blue-light); }
+    .tab-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+    .tab-btn.btn-cta { background: var(--red); color: white; border-color: var(--red); }
+    .tab-btn.btn-cta:hover { background: var(--red-dark); border-color: var(--red-dark); }
+
+    /* Contenedor de Vistas */
+    .view-container { max-width: 1200px; width: 100%; margin: 24px auto; padding: 0 20px; flex: 1; }
+    .view { display: none; }
+    .view.active { display: block; animation: fadeIn 0.25s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Tarjetas y Layouts */
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; box-shadow: var(--shadow); margin-bottom: 22px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    @media (max-width: 820px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+    /* Botones */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 22px;
+      border-radius: 30px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease-in-out;
+      text-decoration: none;
+    }
+    .btn-blue { background: var(--blue); color: white; }
+    .btn-blue:hover { background: var(--blue-dark); box-shadow: 0 4px 12px rgba(0, 162, 255, 0.3); }
+    .btn-red { background: var(--red); color: white; }
+    .btn-red:hover { background: var(--red-dark); box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3); }
+    .btn-outline-blue { background: transparent; border: 2px solid var(--blue); color: var(--blue); }
+    .btn-outline-blue:hover { background: var(--blue-light); }
+    .btn-outline-red { background: transparent; border: 2px solid var(--red); color: var(--red); }
+    .btn-outline-red:hover { background: var(--red-light); }
+    .btn-sm { padding: 6px 14px; font-size: 0.8rem; border-radius: 20px; }
+
+    /* Badges */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 800; text-transform: uppercase; }
+    .badge-verde { background: var(--green-bg); color: #065f46; border: 1px solid #a7f3d0; }
+    .badge-amarillo { background: var(--yellow-bg); color: #92400e; border: 1px solid #fde68a; }
+    .badge-blue { background: var(--blue-light); color: var(--blue-dark); border: 1px solid #bae6fd; }
+    .badge-red { background: var(--red-light); color: var(--red-dark); border: 1px solid #fecdd3; }
+
+    /* Contador en Vivo */
+    .live-counter-bar {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid #334155;
+    }
+    .live-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.3); } 100% { opacity: 1; transform: scale(1); } }
+    
+    .counter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: center; }
+    .counter-val { font-size: 2.2rem; font-weight: 900; color: #38bdf8; line-height: 1.1; }
+    .counter-val.val-red { color: #ff6b81; }
+    .counter-label { font-size: 0.82rem; color: #94a3b8; margin-top: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Formularios */
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; color: var(--navy); }
+    .form-control {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.92rem;
+      transition: all 0.2s;
+    }
+    .form-control:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0, 162, 255, 0.15); }
+
+    /* Tablas */
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
+    th { background: #f8fafc; color: var(--muted); font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:hover td { background: #f8fafc; }
+
+    /* Patrocinadores */
+    .sponsor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; margin-top: 18px; }
+    .sponsor-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .sponsor-card:hover { transform: translateY(-3px); border-color: var(--blue); }
+    .sponsor-icon { font-size: 2rem; margin-bottom: 6px; }
+    .sponsor-name { font-size: 0.85rem; font-weight: 700; color: var(--navy); }
+    .sponsor-role { font-size: 0.72rem; color: var(--muted); }
+
+    /* Footer */
+    footer {
+      background: white;
+      border-top: 1px solid var(--border);
+      padding: 24px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BARRA SUPERIOR DE HAMPI RED -->
+  <header class="app-nav">
+    <div class="brand-group" onclick="showView('v-inicio')">
+      <!-- LOGO VECTORIAL HAMPI RED -->
+      <svg width="42" height="42" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="35" cy="22" r="11" fill="#00a2ff"/>
+        <circle cx="65" cy="22" r="11" fill="#ff4757"/>
+        <path d="M 35 32 C 18 32 10 50 20 68 C 26 78 38 86 50 92 C 44 82 32 74 30 64 C 28 54 36 44 48 42 C 44 36 40 32 35 32 Z" fill="#00a2ff"/>
+        <path d="M 65 32 C 82 32 90 50 80 68 C 74 78 62 86 50 92 C 56 82 68 74 70 64 C 72 54 64 44 52 42 C 56 36 60 32 65 32 Z" fill="#ff4757"/>
+        <rect x="44" y="48" width="12" height="26" rx="3" fill="#ff4757"/>
+        <rect x="37" y="55" width="26" height="12" rx="3" fill="#ff4757"/>
+      </svg>
+      <div>
+        <div class="brand-name">
+          <span class="brand-blue">Hampi</span>
+          <span class="brand-red">Red</span>
+        </div>
+        <div class="brand-slogan">Medicamentos que llegan más lejos</div>
+      </div>
+    </div>
+
+    <nav class="nav-tabs">
+      <button class="tab-btn active" id="btn-inicio" onclick="showView('v-inicio')">Inicio</button>
+      <button class="tab-btn" id="btn-campana" onclick="showView('v-campana')">La Campaña & Destinos</button>
+      <button class="tab-btn btn-cta" id="btn-registro" onclick="showView('v-registro')">+ Donar / Registro</button>
+      <button class="tab-btn" id="btn-excedentes" onclick="showView('v-excedentes')">Mis Excedentes</button>
+      <button class="tab-btn" id="btn-necesidades" onclick="showView('v-necesidades')">Receptor</button>
+      <button class="tab-btn" id="btn-matching" onclick="showView('v-matching')">Matching</button>
+      <button class="tab-btn" id="btn-validacion" onclick="showView('v-validacion')">Validación Sanitaria</button>
+    </nav>
+  </header>
+
+  <div class="view-container">
+
+    <!-- 1. PÁGINA DE INICIO (LANDING PRINCIPAL) -->
+    <div id="v-inicio" class="view active">
+      
+      <!-- CONTADOR EN VIVO -->
+      <div class="live-counter-bar">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div class="live-tag">
+            <div class="live-dot"></div>
+            <span>CONTADOR EN VIVO • REDISTRIBUCIÓN RESPONSABLE PERÚ</span>
+          </div>
+          <span style="font-size:0.75rem; color:#94a3b8;">Actualizado en tiempo real</span>
+        </div>
+        <div class="counter-grid">
+          <div>
+            <div class="counter-val" id="cnt-personas">12,847</div>
+            <div class="counter-label">Personas y Donantes Sumados</div>
+          </div>
+          <div>
+            <div class="counter-val val-red" id="cnt-meds">48,250</div>
+            <div class="counter-label">Medicamentos Redistribuidos</div>
+          </div>
+          <div>
+            <div class="counter-val" id="cnt-postas">142</div>
+            <div class="counter-label">Postas y Centros Rurales</div>
+          </div>
+          <div>
+            <div class="counter-val val-red" id="cnt-sponsors">28</div>
+            <div class="counter-label">Patrocinadores y Aliados</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HERO SECTION -->
+      <div class="card" style="text-align:center; padding:48px 24px; border:2px solid #e0f2fe; background:linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);">
+        <span class="badge badge-blue" style="margin-bottom:14px;">Iniciativa Social sin Fines de Lucro</span>
+        <h1 style="font-size:2.8rem; font-weight:900; line-height:1.2; margin-bottom:16px; color:var(--navy);">
+          Conectamos salud con quienes <span style="color:var(--blue);">más lo necesitan</span>
+        </h1>
+        <p style="font-size:1.15rem; color:var(--muted); max-width:720px; margin:0 auto 30px; line-height:1.6;">
+          En quechua, <strong>Hampi</strong> significa medicina. Transformamos excedentes farmacéuticos en tratamientos dignos para postas rurales y comunidades vulnerables de todo el Perú.
+        </p>
+        <div style="display:flex; justify-content:center; gap:14px; flex-wrap:wrap;">
+          <button class="btn btn-red" onclick="showView('v-registro')">
+            ❤ Registrarme como Donante
+          </button>
+          <button class="btn btn-outline-blue" onclick="showView('v-campana')">
+            ℹ Conocer la Campaña y a Dónde Van las Donaciones
+          </button>
+        </div>
+      </div>
+
+      <!-- 4 PILARES -->
+      <div class="grid-4">
+        <div class="card" style="text-align:center; border-top:4px solid var(--blue);">
+          <div style="font-size:2rem; margin-bottom:8px;">🔄</div>
+          <h4 style="color:var(--navy);">Menos Desperdicio</h4>
+          <p style="font-size:0.82rem; color:var(--muted); margin-top:4px;">Evitamos la merma de medicamentos antes de su vencimiento.</p>
+        </div>
+        <div class="card" style="text-align:center; border-top:4px solid var(--red);">
+          <div style="font-size:2rem; margin-bottom:8px;">💊</div>
+          <h4 style="color:var(--navy);">Más Acceso</h4>
+          <p style="font-size:0.82rem; color:var(--muted); margin-top:4px;">Cubrimos quiebres de stock en postas y centros comunitarios.</p>
+        </div>
+        <div class="card" style="text-align:center; border-top:4px solid var(--blue);">
+          <div style="font-size:2rem; margin-bottom:8px;">📍</div>
+          <h4 style="color:var(--navy);">Prioridad Rural</h4>
+          <p style="font-size:0.82rem; color:var(--muted); margin-top:4px;">Logística focalizada en zonas de difícil acceso y altoandinas.</p>
+        </div>
+        <div class="card" style="text-align:center; border-top:4px solid var(--red);">
+          <div style="font-size:2rem; margin-bottom:8px;">🛡️</div>
+          <h4 style="color:var(--navy);">Validación Técnica</h4>
+          <p style="font-size:0.82rem; color:var(--muted); margin-top:4px;">Inspección y firma de Químicos Farmacéuticos colegiados.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. PÁGINA SECUNDARIA: LA CAMPAÑA & DESTINO DE DONACIONES -->
+    <div id="v-campana" class="view">
+      <div class="card" style="border-left:6px solid var(--red);">
+        <span class="badge badge-red" style="margin-bottom:10px;">Transparencia y Propósito Social</span>
+        <h2 style="font-size:2rem; font-weight:900; color:var(--navy); margin-bottom:12px;">
+          ¿Cómo funciona la campaña Hampi Red?
+        </h2>
+        <p style="font-size:1.05rem; color:var(--muted); line-height:1.7;">
+          Millones de medicamentos terminan destruidos o vencidos por falta de rotación oportuna, mientras que en postas médicas y centros comunitarios de provincias hay pacientes sin tratamiento. <strong>Hampi Red</strong> es el puente tecnológico y sanitario para que ningún medicamento en buen estado se pierda.
+        </p>
+      </div>
+
+      <!-- ¿A DÓNDE SE VAN LAS DONACIONES? -->
+      <div class="card">
+        <h3 style="font-size:1.4rem; font-weight:800; color:var(--navy); margin-bottom:6px;">
+          📍 ¿A dónde se van las donaciones?
+        </h3>
+        <p style="font-size:0.9rem; color:var(--muted); margin-bottom:20px;">
+          Cada lote registrado cuenta con trazabilidad total desde su recojo hasta la entrega verificada en destino:
+        </p>
+
+        <div class="grid-3">
+          <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:20px;">
+            <div style="font-size:2rem; margin-bottom:8px;">🏥</div>
+            <h4 style="color:var(--blue); font-size:1.1rem; margin-bottom:6px;">Postas Médicas Rurales</h4>
+            <p style="font-size:0.85rem; color:var(--muted); line-height:1.6;">
+              Establecimientos en zonas altoandinas de <strong>Huancavelica, Cusco, Puno y Sierra de Lima (Canta, Yauyos)</strong> que atienden a poblaciones sin farmacias cercanas.
+            </p>
+          </div>
+
+          <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:20px;">
+            <div style="font-size:2rem; margin-bottom:8px;">👶</div>
+            <h4 style="color:var(--red); font-size:1.1rem; margin-bottom:6px;">Salud Materno-Infantil</h4>
+            <p style="font-size:0.85rem; color:var(--muted); line-height:1.6;">
+              Destino prioritario de antibióticos pediátricos, antipiréticos y vitaminas para prevenir neumonías en temporada de friaje.
+            </p>
+          </div>
+
+          <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:20px;">
+            <div style="font-size:2rem; margin-bottom:8px;">👵</div>
+            <h4 style="color:var(--blue); font-size:1.1rem; margin-bottom:6px;">Tratamientos Crónicos</h4>
+            <p style="font-size:0.85rem; color:var(--muted); line-height:1.6;">
+              Abastecimiento para centros de atención que cuidan a adultos mayores con hipertensión arterial, diabetes y afecciones articulares.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PATROCINADORES Y ALIADOS -->
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <h3 style="font-size:1.35rem; font-weight:800; color:var(--navy);">
+              🤝 Patrocinadores y Aliados Estratégicos
+            </h3>
+            <p style="font-size:0.85rem; color:var(--muted); margin-top:2px;">
+              Empresas e instituciones que hacen posible la logística, transporte y respaldo técnico:
+            </p>
+          </div>
+          <button class="btn btn-outline-red btn-sm" onclick="showView('v-registro')">+ Sumarse como Aliado</button>
+        </div>
+
+        <div class="sponsor-grid">
+          <div class="sponsor-card">
+            <div class="sponsor-icon">🚚</div>
+            <div class="sponsor-name">TraeloYa Express</div>
+            <div class="sponsor-role">Aliado de Transporte y Envíos</div>
+          </div>
+          <div class="sponsor-card">
+            <div class="sponsor-icon">💊</div>
+            <div class="sponsor-name">Droguería Andina</div>
+            <div class="sponsor-role">Donante Corporativo de Excedentes</div>
+          </div>
+          <div class="sponsor-card">
+            <div class="sponsor-icon">🔬</div>
+            <div class="sponsor-name">Colegio Químico Farmacéutico</div>
+            <div class="sponsor-role">Comité de Validación Sanitaria</div>
+          </div>
+          <div class="sponsor-card">
+            <div class="sponsor-icon">🏥</div>
+            <div class="sponsor-name">Red Asistencial Salud Perú</div>
+            <div class="sponsor-role">Red de Hospitales Receptores</div>
+          </div>
+          <div class="sponsor-card">
+            <div class="sponsor-icon">🌱</div>
+            <div class="sponsor-name">Fundación Huella Verde</div>
+            <div class="sponsor-role">Certificación ESG y Economía Circular</div>
+          </div>
+          <div class="sponsor-card">
+            <div class="sponsor-icon">📦</div>
+            <div class="sponsor-name">Cadena Farmatotal</div>
+            <div class="sponsor-role">Red de Acopio Urbano</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin:30px 0;">
+        <button class="btn btn-red" style="padding:14px 32px; font-size:1.05rem;" onclick="showView('v-registro')">
+          ¡Quiero Donar Medicamentos Ahora!
+        </button>
+      </div>
+    </div>
+
+    <!-- 3. REGISTRO DE USUARIOS -->
+    <div id="v-registro" class="view">
+      <div class="card" style="max-width:680px; margin:0 auto; border-top:5px solid var(--red);">
+        <h2 style="font-size:1.6rem; font-weight:800; margin-bottom:6px; color:var(--navy);">
+          Registro de Donante — Hampi Red
+        </h2>
+        <p style="font-size:0.88rem; color:var(--muted); margin-bottom:20px;">
+          Ingresa tus datos personales y los medicamentos disponibles que deseas donar:
+        </p>
+
+        <form id="form-registro" onsubmit="event.preventDefault(); submitRegister();">
+          <div class="grid-2" style="margin-bottom:0;">
+            <div class="form-group">
+              <label>Nombre Completo</label>
+              <input type="text" id="reg-fullname" class="form-control" placeholder="Ej: Diego Soto Gonzales" required>
+            </div>
+            <div class="form-group">
+              <label>DNI (8 dígitos)</label>
+              <input type="text" id="reg-dni" class="form-control" placeholder="Ej: 72458912" maxlength="8" pattern="[0-9]{8}" required>
+            </div>
+          </div>
+
+          <div class="grid-3" style="margin-bottom:0;">
+            <div class="form-group">
+              <label>Edad</label>
+              <input type="number" id="reg-edad" class="form-control" placeholder="Ej: 22" min="18" max="100" required>
+            </div>
+            <div class="form-group">
+              <label>Provincia</label>
+              <input type="text" id="reg-provincia" class="form-control" value="Lima" required>
+            </div>
+            <div class="form-group">
+              <label>Distrito</label>
+              <input type="text" id="reg-distrito" class="form-control" value="Pueblo Libre" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Medicamentos Disponibles (Nombre, concentración y cantidad aprox.)</label>
+            <textarea id="reg-meds" class="form-control" rows="3" placeholder="Ej: Paracetamol 500mg (2 cajas), Amoxicilina 500mg (1 frasco), Ibuprofeno 400mg (3 blisters)" required></textarea>
+            <span style="font-size:0.75rem; color:var(--muted);">Se registrarán de inmediato en la red para su posterior validación sanitaria.</span>
+          </div>
+
+          <button type="submit" class="btn btn-red" style="width:100%; margin-top:8px;">
+            Completar Registro y Sumarme a Hampi Red
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 4. MIS EXCEDENTES -->
+    <div id="v-excedentes" class="view">
+      <div id="user-welcome-banner" style="background:var(--blue-light); border:1px solid #bae6fd; border-radius:12px; padding:14px 20px; margin-bottom:20px; display:none;">
+        <span style="color:var(--blue-dark); font-weight:700;" id="user-welcome-text"></span>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="margin-bottom:14px; color:var(--navy);">+ Agregar Otro Medicamento Excedente</h3>
+          <form onsubmit="event.preventDefault(); submitExcedente();">
+            <div class="form-group">
+              <label>Medicamento (DCI / Presentación)</label>
+              <input type="text" id="ex-med" class="form-control" value="Ibuprofeno 400 mg" required>
+            </div>
+            <div class="grid-2" style="margin-bottom:0;">
+              <div class="form-group">
+                <label>Lote</label>
+                <input type="text" id="ex-lote" class="form-control" value="B9921" required>
+              </div>
+              <div class="form-group">
+                <label>Cantidad (uds)</label>
+                <input type="number" id="ex-qty" class="form-control" value="400" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Fecha de Vencimiento</label>
+              <input type="date" id="ex-date" class="form-control" value="2027-02-15" required>
+            </div>
+            <div class="form-group">
+              <label>Estado del Empaque</label>
+              <select id="ex-pack" class="form-control">
+                <option value="verde">Envase original sellado (Apto)</option>
+                <option value="amarillo">Caja abierta, blíster íntegro (Revisión)</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-blue" style="width:100%;">Guardar y Enviar a Validación</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:14px; color:var(--navy);">Mis Excedentes Registrados</h3>
+          <table>
+            <thead>
+              <tr><th>Medicamento</th><th>Cant.</th><th>Lote</th><th>Estado</th></tr>
+            </thead>
+            <tbody id="tbl-excedentes"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. RECEPTOR -->
+    <div id="v-necesidades" class="view">
+      <div class="card" style="max-width:700px; margin:0 auto; border-top:5px solid var(--blue);">
+        <h2 style="margin-bottom:6px; color:var(--navy);">Registrar necesidad hospitalaria</h2>
+        <p style="font-size:0.86rem; color:var(--muted); margin-bottom:20px;">Indica qué fármaco requiere tu centro o posta de salud:</p>
+
+        <form onsubmit="event.preventDefault(); submitNecesidad();">
+          <div class="form-group">
+            <label>Medicamento Requerido (DCI)</label>
+            <input type="text" id="nec-med" class="form-control" value="Paracetamol 500 mg" required>
+          </div>
+          <div class="grid-2" style="margin-bottom:0;">
+            <div class="form-group">
+              <label>Cantidad Requerida (uds)</label>
+              <input type="number" id="nec-qty" class="form-control" value="800" required>
+            </div>
+            <div class="form-group">
+              <label>Nivel de Urgencia</label>
+              <select id="nec-urg" class="form-control">
+                <option value="Alta">Alta (Quiebre inminente de stock)</option>
+                <option value="Media">Media (Stock menor a 15 días)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Centro Solicitante / Destino Rural</label>
+            <input type="text" id="nec-center" class="form-control" value="Posta Médica Canta (Sierra de Lima - Rural)">
+          </div>
+          <button type="submit" class="btn btn-blue" style="width:100%;">Publicar Necesidad y Activar Matching</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 6. MATCHING -->
+    <div id="v-matching" class="view">
+      <div class="card">
+        <h2 style="margin-bottom:6px; color:var(--navy);">Coincidencias encontradas (Matching de Oferta y Demanda)</h2>
+        <p style="font-size:0.88rem; color:var(--muted); margin-bottom:20px;">Cruce automático según cercanía, vida útil y prioridad rural:</p>
+        <div id="matching-list"></div>
+      </div>
+    </div>
+
+    <!-- 7. VALIDACIÓN SANITARIA -->
+    <div id="v-validacion" class="view">
+      <div class="grid-2">
+        <div class="card">
+          <h2 style="margin-bottom:6px; color:var(--navy);">Validación Técnica Sanitaria</h2>
+          <p style="font-size:0.88rem; color:var(--muted); margin-bottom:20px;">Revisión obligatoria de Director Técnico colegiado:</p>
+          
+          <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:18px; margin-bottom:16px;">
+            <h4 id="val-med" style="color:var(--navy); font-size:1.15rem;">Paracetamol 500 mg</h4>
+            <p style="font-size:0.85rem; color:var(--muted); margin-top:2px;" id="val-donor">Donante: Farmacia Salud Total | Lote: P12345</p>
+            <div style="margin-top:10px;"><span class="badge badge-verde">● Apto para Evaluación Sanitaria</span></div>
+          </div>
+
+          <div style="font-size:0.85rem; color:var(--muted); line-height:1.6;">
+            <strong>Regulación Farmacéutica:</strong> Todo medicamento donado en Perú debe conservar empaque íntegro, fecha legible y almacenamiento controlado.
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:14px; color:var(--navy);">Lista de Verificación Sanitaria</h3>
+          <label style="display:flex; align-items:center; gap:10px; margin-bottom:12px; font-size:0.9rem; cursor:pointer;">
+            <input type="checkbox" id="chk-1" checked> <span>Envase original cerrado y sellado</span>
+          </label>
+          <label style="display:flex; align-items:center; gap:10px; margin-bottom:12px; font-size:0.9rem; cursor:pointer;">
+            <input type="checkbox" id="chk-2" checked> <span>Lote identificable y fecha legible</span>
+          </label>
+          <label style="display:flex; align-items:center; gap:10px; margin-bottom:12px; font-size:0.9rem; cursor:pointer;">
+            <input type="checkbox" id="chk-3" checked> <span>Vida útil restante mayor al umbral mínimo</span>
+          </label>
+          <label style="display:flex; align-items:center; gap:10px; margin-bottom:12px; font-size:0.9rem; cursor:pointer;">
+            <input type="checkbox" id="chk-4" checked> <span>Condiciones de almacenamiento verificadas</span>
+          </label>
+
+          <button class="btn btn-red" style="width:100%; margin-top:14px;" onclick="approveValidation()">
+            ✓ Aprobar y Certificar Traslado (Firma Digital DT)
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>Hampi Red — Plataforma de Redistribución Responsable de Medicamentos | ODS 3 • ODS 10 • ODS 12</p>
+  </footer>
+
+  <script>
+    var registeredUser = null;
+    var livePeopleCount = 12847;
+
+    var inventory = [
+      { id: 1, med: "Paracetamol 500 mg", qty: 1000, lot: "P12345", exp: "2026-12-30", donor: "Farmacia Salud Total", location: "Lima, Lima", status: "verde" },
+      { id: 2, med: "Amoxicilina 500 mg", qty: 500, lot: "A5876", exp: "2026-09-15", donor: "Clínica Bienestar", location: "Huancayo, Junín", status: "amarillo" },
+      { id: 3, med: "Metformina 850 mg", qty: 200, lot: "M5432", exp: "2027-01-20", donor: "Laboratorio Vida", location: "Lima, Lima", status: "verde" },
+      { id: 4, med: "Omeprazol 20 mg", qty: 300, lot: "O1122", exp: "2026-11-10", donor: "Farmacia Salud Total", location: "Lima, Lima", status: "verde" }
+    ];
+
+    function showView(viewId) {
+      var views = document.querySelectorAll(".view");
+      for (var i = 0; i < views.length; i++) {
+        views[i].classList.remove("active");
+      }
+
+      var tabs = document.querySelectorAll(".tab-btn");
+      for (var j = 0; j < tabs.length; j++) {
+        tabs[j].classList.remove("active");
+      }
+
+      var target = document.getElementById(viewId);
+      if (target) {
+        target.classList.add("active");
+      }
+
+      var btnId = "btn-" + viewId.replace("v-", "");
+      var activeBtn = document.getElementById(btnId);
+      if (activeBtn) {
+        activeBtn.classList.add("active");
+      }
+
+      if (window.scrollTo) {
+        window.scrollTo(0, 0);
+      }
+    }
+
+    function submitRegister() {
+      var nombre = document.getElementById("reg-fullname").value.trim();
+      var dni = document.getElementById("reg-dni").value.trim();
+      var edad = document.getElementById("reg-edad").value.trim();
+      var provincia = document.getElementById("reg-provincia").value.trim();
+      var distrito = document.getElementById("reg-distrito").value.trim();
+      var meds = document.getElementById("reg-meds").value.trim();
+
+      if (dni.length !== 8 || isNaN(dni)) {
+        alert("Por favor, ingresa un DNI valido de 8 digitos.");
+        return;
+      }
+
+      registeredUser = {
+        nombre: nombre,
+        dni: dni,
+        edad: edad,
+        provincia: provincia,
+        distrito: distrito,
+        meds: meds
+      };
+
+      livePeopleCount += 1;
+      var counterEl = document.getElementById("cnt-personas");
+      if (counterEl) {
+        counterEl.innerText = livePeopleCount.toLocaleString();
+      }
+
+      inventory.unshift({
+        id: Date.now(),
+        med: meds,
+        qty: 1,
+        lot: "DNI-" + dni.substring(4),
+        exp: "2027-01-01",
+        donor: nombre + " (" + distrito + ", " + provincia + ")",
+        location: distrito + ", " + provincia,
+        status: "verde"
+      });
+
+      var banner = document.getElementById("user-welcome-banner");
+      var text = document.getElementById("user-welcome-text");
+      if (banner && text) {
+        text.innerHTML = "👤 Donante Registrado en Hampi Red: <strong>" + nombre + "</strong> (DNI: " + dni + ") — " + distrito + ", " + provincia + " (" + edad + " anos).";
+        banner.style.display = "block";
+      }
+
+      renderInventory();
+      alert("¡Registro completado con exito en Hampi Red, " + nombre + "! Tus medicamentos disponibles han sido agregados al inventario.");
+      showView("v-excedentes");
+    }
+
+    function renderInventory() {
+      var tbody = document.getElementById("tbl-excedentes");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      for (var i = 0; i < inventory.length; i++) {
+        var item = inventory[i];
+        var tr = document.createElement("tr");
+        var badgeClass = item.status === "verde" ? "badge-verde" : "badge-amarillo";
+        var badgeText = item.status === "verde" ? "● Verde Apto" : "● Amarillo Revision";
+        tr.innerHTML = "<td><strong>" + item.med + "</strong><br><span style=\"font-size:0.75rem; color:var(--muted);\">" + item.donor + "</span></td>" +
+                       "<td>" + item.qty + "</td>" +
+                       "<td>" + item.lot + "</td>" +
+                       "<td><span class=\"badge " + badgeClass + "\">" + badgeText + "</span></td>";
+        tbody.appendChild(tr);
+      }
+      renderMatches();
+    }
+
+    function submitExcedente() {
+      var med = document.getElementById("ex-med").value;
+      var lot = document.getElementById("ex-lote").value;
+      var qty = parseInt(document.getElementById("ex-qty").value);
+      var exp = document.getElementById("ex-date").value;
+      var pack = document.getElementById("ex-pack").value;
+      var donorName = registeredUser ? (registeredUser.nombre + " (" + registeredUser.distrito + ")") : "Donante Hampi Red";
+
+      inventory.unshift({
+        id: Date.now(),
+        med: med,
+        qty: qty,
+        lot: lot,
+        exp: exp,
+        donor: donorName,
+        status: pack
+      });
+
+      renderInventory();
+      alert("Excedente registrado en el inventario.");
+      showView("v-excedentes");
+    }
+
+    function submitNecesidad() {
+      var med = document.getElementById("nec-med").value;
+      alert("Necesidad de " + med + " publicada. Mostrando coincidencias disponibles...");
+      showView("v-matching");
+    }
+
+    function renderMatches() {
+      var list = document.getElementById("matching-list");
+      if (!list) return;
+      list.innerHTML = "";
+
+      for (var i = 0; i < inventory.length; i++) {
+        var item = inventory[i];
+        var itemDiv = document.createElement("div");
+        itemDiv.style.cssText = "border:1px solid var(--border); border-radius:12px; padding:18px; display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; background:white;";
+        itemDiv.innerHTML = "<div>" +
+          "<h4 style=\"color:var(--navy); font-size:1.05rem;\">" + item.med + "</h4>" +
+          "<p style=\"font-size:0.85rem; color:var(--muted); margin-top:2px;\">Donante: " + item.donor + " | Lote: " + item.lot + " | Vence: " + item.exp + "</p>" +
+          "<div style=\"margin-top:6px;\"><span class=\"badge badge-verde\">98% Compatibilidad Logistica</span></div>" +
+          "</div>" +
+          "<div style=\"display:flex; gap:8px;\">" +
+          "<button class=\"btn btn-red btn-sm\" onclick=\"solicitarMatch('" + item.med.replace(/'/g, "") + "')\">Solicitar Donacion</button>" +
+          "<button class=\"btn btn-outline-blue btn-sm\" onclick=\"prepararValidacion('" + item.med.replace(/'/g, "") + "', '" + item.donor.replace(/'/g, "") + "', '" + item.lot.replace(/'/g, "") + "')\">Revisar Sanitario</button>" +
+          "</div>";
+        list.appendChild(itemDiv);
+      }
+    }
+
+    function solicitarMatch(med) {
+      alert("Solicitud de donacion enviada para " + med + ". Pasa al modulo de Validacion Sanitaria.");
+      showView("v-validacion");
+    }
+
+    function prepararValidacion(med, donor, lot) {
+      document.getElementById("val-med").innerText = med;
+      document.getElementById("val-donor").innerText = "Donante: " + donor + " | Lote: " + lot;
+      showView("v-validacion");
+    }
+
+    function approveValidation() {
+      var chk1 = document.getElementById("chk-1").checked;
+      var chk2 = document.getElementById("chk-2").checked;
+      var chk3 = document.getElementById("chk-3").checked;
+      var chk4 = document.getElementById("chk-4").checked;
+
+      if (!chk1 || !chk2 || !chk3 || !chk4) {
+        alert("Debes verificar y marcar todos los criterios sanitarios obligatorios.");
+        return;
+      }
+      alert("Aprobacion sanitaria certificada por Quimico Farmaceutico (CQFP 14209). Se genero la guia de remision electronica para el traslado hacia la posta receptora.");
+      showView("v-inicio");
+    }
+
+    setInterval(function() {
+      livePeopleCount += Math.floor(Math.random() * 2) + 1;
+      var el = document.getElementById("cnt-personas");
+      if (el) {
+        el.innerText = livePeopleCount.toLocaleString();
+      }
+    }, 15000);
+
+    window.addEventListener("DOMContentLoaded", function() {
+      renderInventory();
+    });
+  </script>
+</body>
+</html>
