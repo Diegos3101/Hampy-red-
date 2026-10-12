@@ -1,3 +1,1545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hampi Red - Plataforma Institucional de Redistribución Farmacéutica</title>
+  <style>
+    :root {
+      --blue: #00a2ff;
+      --blue-dark: #0284c7;
+      --blue-light: #f0f9ff;
+      --red: #ff4757;
+      --red-dark: #e84118;
+      --red-light: #fff1f2;
+      --navy: #0f172a;
+      --slate: #1e293b;
+      --muted: #64748b;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --green: #10b981;
+      --green-dark: #047857;
+      --green-bg: #d1fae5;
+      --yellow: #f59e0b;
+      --yellow-dark: #b45309;
+      --yellow-bg: #fef3c7;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03);
+      --shadow-lg: 0 12px 24px -4px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Nunito", sans-serif; }
+    body { background: var(--bg); color: var(--slate); display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* Barra Superior */
+    .app-nav {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .brand-group { display: flex; align-items: center; gap: 12px; cursor: pointer; text-decoration: none; }
+    .brand-name { font-size: 1.45rem; font-weight: 900; letter-spacing: -0.5px; display: flex; gap: 4px; }
+    .brand-blue { color: var(--blue); }
+    .brand-red { color: var(--red); }
+    .brand-slogan { font-size: 0.72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .nav-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0; align-items: center; }
+    .tab-btn {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { color: var(--blue-dark); border-color: var(--blue); background: var(--blue-light); }
+    .tab-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+    .tab-btn.btn-cta { background: var(--red); color: white; border-color: var(--red); }
+    .tab-btn.btn-cta:hover { background: var(--red-dark); border-color: var(--red-dark); }
+    .tab-btn.btn-session { background: #f1f5f9; color: var(--navy); border-color: #cbd5e1; display: inline-flex; align-items: center; gap: 6px; }
+
+    /* Barra de Estado de Sesión Institucional */
+    .session-bar {
+      background: #0f172a;
+      color: #94a3b8;
+      font-size: 0.78rem;
+      padding: 6px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-bottom: 1px solid #1e293b;
+    }
+    .session-indicator { display: flex; align-items: center; gap: 8px; color: #f8fafc; font-weight: 600; }
+    .session-badge { padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
+    .badge-role-donante { background: #0284c7; color: white; }
+    .badge-role-receptor { background: #10b981; color: white; }
+    .badge-role-validador { background: #8b5cf6; color: white; }
+    .session-actions { display: flex; gap: 10px; align-items: center; }
+    .session-link { color: #38bdf8; text-decoration: underline; cursor: pointer; font-weight: 600; }
+    .session-link:hover { color: #bae6fd; }
+
+    /* Contenedor de Vistas */
+    .view-container { max-width: 1200px; width: 100%; margin: 20px auto; padding: 0 16px; flex: 1; }
+    .view { display: none; }
+    .view.active { display: block; animation: fadeIn 0.25s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Tarjetas y Layouts */
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); margin-bottom: 20px; }
+    .card-header-bar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-bottom: 20px; }
+    @media (max-width: 860px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+    /* Botones */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease-in-out;
+      text-decoration: none;
+    }
+    .btn-blue { background: var(--blue); color: white; }
+    .btn-blue:hover { background: var(--blue-dark); box-shadow: 0 4px 12px rgba(0, 162, 255, 0.3); }
+    .btn-red { background: var(--red); color: white; }
+    .btn-red:hover { background: var(--red-dark); box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3); }
+    .btn-green { background: var(--green); color: white; }
+    .btn-green:hover { background: var(--green-dark); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+    .btn-outline-blue { background: transparent; border: 2px solid var(--blue); color: var(--blue); }
+    .btn-outline-blue:hover { background: var(--blue-light); }
+    .btn-outline-red { background: transparent; border: 2px solid var(--red); color: var(--red); }
+    .btn-outline-red:hover { background: var(--red-light); }
+    .btn-outline-gray { background: transparent; border: 1.5px solid var(--border); color: var(--slate); }
+    .btn-outline-gray:hover { background: #f1f5f9; }
+    .btn-sm { padding: 6px 14px; font-size: 0.8rem; border-radius: 20px; }
+
+    /* Badges */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 0.74rem; font-weight: 800; text-transform: uppercase; }
+    .badge-verde { background: var(--green-bg); color: #065f46; border: 1px solid #a7f3d0; }
+    .badge-amarillo { background: var(--yellow-bg); color: #92400e; border: 1px solid #fde68a; }
+    .badge-rojo { background: var(--red-light); color: var(--red-dark); border: 1px solid #fecdd3; }
+    .badge-blue { background: var(--blue-light); color: var(--blue-dark); border: 1px solid #bae6fd; }
+
+    /* Contador en Vivo */
+    .live-counter-bar {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid #334155;
+    }
+    .live-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.3); } 100% { opacity: 1; transform: scale(1); } }
+    
+    .counter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; text-align: center; }
+    .counter-val { font-size: 2.1rem; font-weight: 900; color: #38bdf8; line-height: 1.1; }
+    .counter-val.val-red { color: #ff6b81; }
+    .counter-label { font-size: 0.8rem; color: #94a3b8; margin-top: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Formularios */
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 0.84rem; font-weight: 700; margin-bottom: 5px; color: var(--navy); }
+    .form-control {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      background: #ffffff;
+    }
+    .form-control:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0, 162, 255, 0.15); }
+    .form-control[readonly], .form-control:disabled { background: #f1f5f9; cursor: not-allowed; }
+    .help-hint { font-size: 0.75rem; color: var(--muted); margin-top: 4px; display: block; }
+    .help-warning { font-size: 0.75rem; color: var(--red); font-weight: 700; margin-top: 4px; display: none; }
+
+    /* Tablas */
+    .table-responsive { width: 100%; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.86rem; }
+    th { background: #f8fafc; color: var(--muted); font-weight: 700; padding: 11px 14px; border-bottom: 1px solid var(--border); font-size: 0.8rem; text-transform: uppercase; }
+    td { padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:hover td { background: #f8fafc; }
+
+    /* Alertas y Callouts */
+    .alert-box {
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 0.86rem;
+      line-height: 1.5;
+    }
+    .alert-info { background: var(--blue-light); border: 1px solid #bae6fd; color: #0369a1; }
+    .alert-warning { background: var(--yellow-bg); border: 1px solid #fde68a; color: #92400e; }
+    .alert-danger { background: var(--red-light); border: 1px solid #fecdd3; color: #9f1239; }
+    .alert-success { background: var(--green-bg); border: 1px solid #a7f3d0; color: #065f46; }
+
+    /* Selector de pestañas internas */
+    .subtabs { display: flex; gap: 8px; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
+    .subtab-btn {
+      padding: 8px 18px;
+      border: none;
+      background: transparent;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.9rem;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+    }
+    .subtab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+    /* Tarjetas de Rol para Demo Rápida */
+    .role-card-picker {
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: white;
+    }
+    .role-card-picker:hover { border-color: var(--blue); transform: translateY(-2px); box-shadow: var(--shadow); }
+    .role-card-picker.active-role { border-color: var(--blue); background: var(--blue-light); }
+
+    /* Patrocinadores */
+    .sponsor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-top: 16px; }
+    .sponsor-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .sponsor-card:hover { transform: translateY(-3px); border-color: var(--blue); }
+    .sponsor-icon { font-size: 2rem; margin-bottom: 6px; }
+    .sponsor-name { font-size: 0.85rem; font-weight: 700; color: var(--navy); }
+    .sponsor-role { font-size: 0.72rem; color: var(--muted); }
+
+    /* Footer */
+    footer {
+      background: white;
+      border-top: 1px solid var(--border);
+      padding: 22px;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BARRA DE SESIÓN ACTIVA INSTITUCIONAL -->
+  <aside class="session-bar" aria-label="Sesión institucional">
+    <div class="session-indicator">
+      <span>Entidad Activa:</span>
+      <span class="session-badge badge-role-donante" id="top-role-badge">Donante</span>
+      <strong id="top-entity-name" style="color:white;">Droguería Andina S.A.C.</strong>
+      <span style="color:#64748b;" id="top-entity-id">• RUC: 20549182311</span>
+    </div>
+    <div class="session-actions">
+      <span>Director Técnico: <strong id="top-dt-name" style="color:#f8fafc;">Q.F. Carlos Mendoza (CQFP 18420)</strong></span>
+      <span>•</span>
+      <a class="session-link" onclick="showView('v-login')">Cambiar Rol / Cerrar Sesión</a>
+    </div>
+  </aside>
+
+  <!-- BARRA SUPERIOR DE HAMPI RED -->
+  <header class="app-nav">
+    <div class="brand-group" onclick="showView('v-inicio')">
+      <!-- LOGO VECTORIAL HAMPI RED -->
+      <svg width="42" height="42" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="35" cy="22" r="11" fill="#00a2ff"/>
+        <circle cx="65" cy="22" r="11" fill="#ff4757"/>
+        <path d="M 35 32 C 18 32 10 50 20 68 C 26 78 38 86 50 92 C 44 82 32 74 30 64 C 28 54 36 44 48 42 C 44 36 40 32 35 32 Z" fill="#00a2ff"/>
+        <path d="M 65 32 C 82 32 90 50 80 68 C 74 78 62 86 50 92 C 56 82 68 74 70 64 C 72 54 64 44 52 42 C 56 36 60 32 65 32 Z" fill="#ff4757"/>
+        <rect x="44" y="48" width="12" height="26" rx="3" fill="#ff4757"/>
+        <rect x="37" y="55" width="26" height="12" rx="3" fill="#ff4757"/>
+      </svg>
+      <div>
+        <div class="brand-name">
+          <span class="brand-blue">Hampi</span>
+          <span class="brand-red">Red</span>
+        </div>
+        <div class="brand-slogan">Medicamentos que llegan más lejos • Red Institucional B2B</div>
+      </div>
+    </div>
+
+    <nav class="nav-tabs">
+      <button class="tab-btn active" id="btn-inicio" onclick="showView('v-inicio')">Inicio</button>
+      <button class="tab-btn" id="btn-campana" onclick="showView('v-campana')">La Red & Regulación</button>
+      <button class="tab-btn" id="btn-excedentes" onclick="showView('v-excedentes')">Donante: Excedentes</button>
+      <button class="tab-btn" id="btn-necesidades" onclick="showView('v-necesidades')">Receptor: Necesidades</button>
+      <button class="tab-btn" id="btn-matching" onclick="showView('v-matching')">Matching</button>
+      <button class="tab-btn" id="btn-validacion" onclick="showView('v-validacion')">Validación Q.F.</button>
+      <button class="tab-btn" id="btn-transferencias" onclick="showView('v-transferencias')">Órdenes (CUT)</button>
+      <button class="tab-btn btn-cta" id="btn-login" onclick="showView('v-login')">🔐 Acceso Institucional</button>
+    </nav>
+  </header>
+
+  <div class="view-container">
+
+    <!-- 1. PÁGINA DE INICIO (LANDING PRINCIPAL B2B) -->
+    <div id="v-inicio" class="view active">
+      
+      <!-- CONTADOR EN VIVO -->
+      <div class="live-counter-bar">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div class="live-tag">
+            <div class="live-dot"></div>
+            <span>CONTADOR EN VIVO • REDISTRIBUCIÓN FARMACÉUTICA INSTITUCIONAL PERÚ</span>
+          </div>
+          <span style="font-size:0.75rem; color:#94a3b8;">Monitoreo regulatorio continuo • DIGEMID / MINSA</span>
+        </div>
+        <div class="counter-grid">
+          <div>
+            <div class="counter-val" id="cnt-empresas">348</div>
+            <div class="counter-label">Establecimientos Farmacéuticos Aliados</div>
+          </div>
+          <div>
+            <div class="counter-val val-red" id="cnt-meds">48,250</div>
+            <div class="counter-label">Unidades de Medicamentos Redistribuidas</div>
+          </div>
+          <div>
+            <div class="counter-val" id="cnt-postas">142</div>
+            <div class="counter-label">Postas y Centros Rurales Abastecidos</div>
+          </div>
+          <div>
+            <div class="counter-val val-red" id="cnt-sponsors">28</div>
+            <div class="counter-label">Patrocinadores y Operadores BPDT</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AVISO REGULATORIO DESTACADO -->
+      <div class="alert-box alert-info">
+        <div style="font-size:1.5rem;">⚖️</div>
+        <div>
+          <strong>Marco Regulatorio Estricto (Ley N° 29459):</strong>
+          Por disposiciones de DIGEMID y Buenas Prácticas de Almacenamiento (BPA), Hampi Red opera de forma <strong>exclusiva entre personas jurídicas autorizadas</strong> (droguerías, clínicas, farmacias y postas de salud). No se reciben donaciones de personas naturales particulares, garantizando el 100% de trazabilidad de lote y cadena sanitaria.
+        </div>
+      </div>
+
+      <!-- HERO SECTION -->
+      <div class="card" style="text-align:center; padding:44px 24px; border:2px solid #e0f2fe; background:linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);">
+        <span class="badge badge-blue" style="margin-bottom:14px;">Plataforma Digital B2B de Salud e Impacto ESG</span>
+        <h1 style="font-size:2.6rem; font-weight:900; line-height:1.2; margin-bottom:16px; color:var(--navy);">
+          Transformamos excedentes farmacéuticos en <span style="color:var(--blue);">abastecimiento rural digno</span>
+        </h1>
+        <p style="font-size:1.1rem; color:var(--muted); max-width:760px; margin:0 auto 28px; line-height:1.6;">
+          En quechua, <strong>Hampi</strong> significa medicina. Conectamos formalmente a <strong>empresas e instituciones farmacéuticas con stock por rotar</strong> con <strong>postas de salud en quiebre de stock</strong>, bajo validación obligatoria de Químicos Farmacéuticos colegiados.
+        </p>
+        <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+          <button class="btn btn-red" onclick="showView('v-login')">
+            🏢 Iniciar Sesión / Registro Corporativo
+          </button>
+          <button class="btn btn-blue" onclick="showView('v-excedentes')">
+            📦 Registrar Excedentes de Lote
+          </button>
+          <button class="btn btn-outline-blue" onclick="showView('v-campana')">
+            ℹ Modelo Operativo & Criterios de Exclusión
+          </button>
+        </div>
+      </div>
+
+      <!-- 4 PILARES DE SEGURIDAD SANITARIA -->
+      <div class="grid-4">
+        <div class="card" style="text-align:center; border-top:4px solid var(--blue);">
+          <div style="font-size:2rem; margin-bottom:8px;">🏢</div>
+          <h4 style="color:var(--navy);">100% Institucional (B2B)</h4>
+          <p style="font-size:0.82rem; color:var(--muted); margin-top:4px;">Registro formal con RUC, RENAES y Directores Técnicos habilitados.</p>
+        </div>
+        <div class="card" style="text-align:center; border-top:4px solid var(--red);">
+          <div style="font-size:2rem; margin-bottom:8px;">⏳</div>
+          <h4 style="color:var(--navy);">Regla de Caducidad >60 Días</h4>
+          <p style="font-size:0.82rem; color:var(--muted); margin-top:4px;">Bloqueo automático de lotes con vigencia menor a 60 días para asegurar tránsito.</p>
+        </div>
+        <div class="card" style="text-align:center; border-top:4px solid var(--blue);">
+          <div style="font-size:2rem; margin-bottom:8px;">🌡️</div>
+          <h4 style="color:var(--navy);">Exclusión de Cadena de Frío</h4>
+          <p style="font-size:0.82rem; color:var(--muted); margin-top:4px;">En fase piloto solo admitimos medicamentos a temperatura ambiente controlada.</p>
+        </div>
+        <div class="card" style="text-align:center; border-top:4px solid var(--red);">
+          <div style="font-size:2rem; margin-bottom:8px;">🚦</div>
+          <h4 style="color:var(--navy);">Semáforo Sanitario CQFP</h4>
+          <p style="font-size:0.82rem; color:var(--muted); margin-top:4px;">Dictamen técnico con firma profesional: solo lotes Verde Apto se transfieren.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. LA RED, REGULACIÓN Y DESTINOS -->
+    <div id="v-campana" class="view">
+      <div class="card" style="border-left:6px solid var(--red);">
+        <span class="badge badge-red" style="margin-bottom:10px;">Cumplimiento Normativo & Buenas Prácticas</span>
+        <h2 style="font-size:1.8rem; font-weight:900; color:var(--navy); margin-bottom:10px;">
+          ¿Por qué operamos exclusivamente con empresas e instituciones de salud?
+        </h2>
+        <p style="font-size:0.95rem; color:var(--muted); line-height:1.7;">
+          La legislación farmacéutica peruana (Ley N° 29459 y D.S. N° 014-2011-SA) prohíbe la comercialización o transferencia de medicamentos provenientes de usuarios particulares o botiquines caseros, ya que no se puede comprobar si sufrieron exposición al calor, humedad o luz. <strong>Hampi Red profesionaliza la donación</strong> trabajando únicamente con establecimientos autorizados que cuentan con <strong>Buenas Prácticas de Almacenamiento (BPA)</strong>.
+        </p>
+      </div>
+
+      <!-- CRITERIOS DE EXCLUSIÓN Y REGLAS DEL PILOTO -->
+      <div class="card">
+        <h3 style="font-size:1.3rem; font-weight:800; color:var(--navy); margin-bottom:12px;">
+          🛡️ Filtros de Seguridad Sanitaria del Piloto Hampi Red
+        </h3>
+        <div class="grid-3">
+          <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:18px;">
+            <div style="font-size:1.8rem; margin-bottom:6px;">🛑</div>
+            <h4 style="color:var(--red); font-size:1rem; margin-bottom:4px;">Bloqueo &lt; 60 Días</h4>
+            <p style="font-size:0.83rem; color:var(--muted); line-height:1.5;">
+              Cualquier lote con fecha de caducidad inferior a 60 días queda automáticamente bloqueado en el sistema para evitar que llegue vencido a las postas.
+            </p>
+          </div>
+          <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:18px;">
+            <div style="font-size:1.8rem; margin-bottom:6px;">❄️</div>
+            <h4 style="color:var(--blue); font-size:1rem; margin-bottom:4px;">Sin Cadena de Frío</h4>
+            <p style="font-size:0.83rem; color:var(--muted); line-height:1.5;">
+              El piloto excluye vacunas e insulinas que requieran 2°C a 8°C. Solo se autorizan fármacos de temperatura ambiente controlada (15°C a 25°C).
+            </p>
+          </div>
+          <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:18px;">
+            <div style="font-size:1.8rem; margin-bottom:6px;">🚫</div>
+            <h4 style="color:var(--navy); font-size:1rem; margin-bottom:4px;">Cero Fiscalizados</h4>
+            <p style="font-size:0.83rem; color:var(--muted); line-height:1.5;">
+              Exclusión taxativa de estupefacientes, psicotrópicos y precursores bajo control especial de DIGEMID/DIRANDRO.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- DESTINOS RURALES PRIORITARIOS -->
+      <div class="card">
+        <h3 style="font-size:1.3rem; font-weight:800; color:var(--navy); margin-bottom:14px;">
+          📍 Red de Destinos Rurales del Piloto (Provincias Cercanas a Lima)
+        </h3>
+        <div class="grid-3">
+          <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:16px;">
+            <h4 style="color:var(--blue); margin-bottom:4px;">🏥 Postas Sierra de Lima</h4>
+            <p style="font-size:0.84rem; color:var(--muted);">Canta, Yauyos, Huarochirí y Oyón (establecimientos I-1 a I-3 con tiempos de viaje de 4 a 8 horas).</p>
+          </div>
+          <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:16px;">
+            <h4 style="color:var(--blue); margin-bottom:4px;">👶 Salud Materno-Infantil</h4>
+            <p style="font-size:0.84rem; color:var(--muted);">Dotación prioritaria de antibióticos pediátricos, analgésicos y sales de rehidratación oral.</p>
+          </div>
+          <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:16px;">
+            <h4 style="color:var(--blue); margin-bottom:4px;">👵 Tratamiento de Crónicos</h4>
+            <p style="font-size:0.84rem; color:var(--muted);">Fármacos antihipertensivos, hipoglucemiantes y analgésicos para adultos mayores en comunidades andinas.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PATROCINADORES -->
+      <div class="card">
+        <div class="card-header-bar">
+          <div>
+            <h3 style="font-size:1.3rem; font-weight:800; color:var(--navy);">🤝 Aliados Estratégicos & Operadores de Transporte</h3>
+            <p style="font-size:0.84rem; color:var(--muted);">Empresas que hacen posible la logística certificada con Buenas Prácticas de Distribución y Transporte (BPDT):</p>
+          </div>
+          <button class="btn btn-outline-red btn-sm" onclick="showView('v-login')">+ Sumar Mi Empresa</button>
+        </div>
+        <div class="sponsor-grid">
+          <div class="sponsor-card">
+            <div class="sponsor-icon">🚚</div>
+            <div class="sponsor-name">TraeloYa Express</div>
+            <div class="sponsor-role">Operador Logístico BPDT</div>
+          </div>
+          <div class="sponsor-card">
+            <div class="sponsor-icon">💊</div>
+            <div class="sponsor-name">Droguería Andina S.A.C.</div>
+            <div class="sponsor-role">Donante Corporativo Ancla</div>
+          </div>
+          <div class="sponsor-card">
+            <div class="sponsor-icon">🔬</div>
+            <div class="sponsor-name">Colegio Químico Farmacéutico</div>
+            <div class="sponsor-role">Comité Técnico Validador (CQFP)</div>
+          </div>
+          <div class="sponsor-card">
+            <div class="sponsor-icon">🏥</div>
+            <div class="sponsor-name">Red de Salud Canta - MINSA</div>
+            <div class="sponsor-role">Red Asistencial Receptora</div>
+          </div>
+          <div class="sponsor-card">
+            <div class="sponsor-icon">🌱</div>
+            <div class="sponsor-name">Fundación Huella Verde</div>
+            <div class="sponsor-role">Certificación ESG y ODS 3, 10, 12</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. SISTEMA DE LOGIN Y REGISTRO INSTITUCIONAL (B2B) -->
+    <div id="v-login" class="view">
+      <div class="card" style="max-width:820px; margin:0 auto; border-top:5px solid var(--blue);">
+        <div class="card-header-bar">
+          <div>
+            <h2 style="font-size:1.6rem; font-weight:800; color:var(--navy);">
+              Portal de Acceso Institucional — Hampi Red
+            </h2>
+            <p style="font-size:0.86rem; color:var(--muted);">
+              Autenticación y Registro de Empresas Farmacéuticas, Postas Médicas y Químicos Farmacéuticos
+            </p>
+          </div>
+          <span class="badge badge-blue">DIGEMID Compliant</span>
+        </div>
+
+        <!-- SELECTOR DE SUBPESTAÑAS -->
+        <div class="subtabs">
+          <button class="subtab-btn active" id="subtab-btn-fast" onclick="switchLoginTab('fast')">⚡ Selector Rápido (Modo Demo)</button>
+          <button class="subtab-btn" id="subtab-btn-signin" onclick="switchLoginTab('signin')">🔑 Iniciar Sesión</button>
+          <button class="subtab-btn" id="subtab-btn-register" onclick="switchLoginTab('register')">🏢 Registrar Nueva Empresa</button>
+        </div>
+
+        <!-- 3A. FAST DEMO SELECTOR -->
+        <div id="auth-tab-fast">
+          <div class="alert-box alert-info" style="margin-bottom:16px;">
+            <span>ℹ️</span>
+            <div>
+              <strong>Simulador de Perfiles Institucionales:</strong>
+              Selecciona cualquiera de las entidades preconfiguradas para explorar el sistema con sus permisos correspondientes:
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:14px; margin-bottom:20px;">
+            <!-- PERFIL 1: DONANTE -->
+            <div class="role-card-picker active-role" id="card-role-donante" onclick="selectDemoProfile('donante')">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span class="session-badge badge-role-donante">Donante</span>
+                <span style="font-size:1.2rem;">🏢</span>
+              </div>
+              <strong style="color:var(--navy); font-size:0.95rem; display:block;">Droguería Andina S.A.C.</strong>
+              <div style="font-size:0.78rem; color:var(--muted); margin-top:4px;">
+                • RUC: 20549182311<br>
+                • DT: Q.F. Carlos Mendoza (CQFP 18420)<br>
+                • Almacén: Lima Cercado (Certif. BPA)
+              </div>
+            </div>
+
+            <!-- PERFIL 2: RECEPTOR -->
+            <div class="role-card-picker" id="card-role-receptor" onclick="selectDemoProfile('receptor')">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span class="session-badge badge-role-receptor">Receptor</span>
+                <span style="font-size:1.2rem;">🏥</span>
+              </div>
+              <strong style="color:var(--navy); font-size:0.95rem; display:block;">Posta Médica Canta</strong>
+              <div style="font-size:0.78rem; color:var(--muted); margin-top:4px;">
+                • Código RENAES: 00004128<br>
+                • Encargado: Lic. Mario Salazar<br>
+                • Ubicación: Canta, Sierra de Lima
+              </div>
+            </div>
+
+            <!-- PERFIL 3: VALIDADOR -->
+            <div class="role-card-picker" id="card-role-validador" onclick="selectDemoProfile('validador')">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span class="session-badge badge-role-validador">Validador</span>
+                <span style="font-size:1.2rem;">🔬</span>
+              </div>
+              <strong style="color:var(--navy); font-size:0.95rem; display:block;">Dra. Elena Vargas Rojas</strong>
+              <div style="font-size:0.78rem; color:var(--muted); margin-top:4px;">
+                • Químico Farmacéutico Colegiada<br>
+                • CQFP N°: 14209 (Habilitada)<br>
+                • Comité de Validación Sanitaria
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align:center;">
+            <button class="btn btn-blue" style="width:100%; padding:12px;" onclick="applyDemoProfile()">
+              ✓ Ingresar con la Entidad Seleccionada
+            </button>
+          </div>
+        </div>
+
+        <!-- 3B. INICIAR SESIÓN CON FORMULARIO -->
+        <div id="auth-tab-signin" style="display:none;">
+          <form onsubmit="event.preventDefault(); submitSignIn();">
+            <div class="form-group">
+              <label>Tipo de Entidad Institucional</label>
+              <select id="login-entity-type" class="form-control" onchange="updateLoginFormFields()">
+                <option value="donante">Establecimiento Donante (Droguería / Farmacia / Clínica / Laboratorio)</option>
+                <option value="receptor">Establecimiento de Salud Receptor (Posta Médica / Centro de Salud)</option>
+                <option value="validador">Químico Farmacéutico Validador (Colegiado CQFP)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label id="lbl-login-id">RUC de la Empresa (11 dígitos)</label>
+              <input type="text" id="login-identifier" class="form-control" placeholder="Ej: 20549182311" required>
+            </div>
+
+            <div class="form-group">
+              <label>Correo Electrónico Corporativo</label>
+              <input type="email" id="login-email" class="form-control" placeholder="direccion.tecnica@empresa.com" required>
+            </div>
+
+            <div class="form-group">
+              <label>Contraseña Institucional</label>
+              <input type="password" id="login-pass" class="form-control" value="demo1234" required>
+            </div>
+
+            <button type="submit" class="btn btn-blue" style="width:100%; margin-top:6px;">
+              Ingresar al Sistema Institucional
+            </button>
+          </form>
+        </div>
+
+        <!-- 3C. REGISTRO DE NUEVA EMPRESA FARMACÉUTICA -->
+        <div id="auth-tab-register" style="display:none;">
+          <form onsubmit="event.preventDefault(); submitRegisterCompany();">
+            <div class="alert-box alert-warning">
+              <span>⚠️</span>
+              <div>
+                <strong>Requisitos Obligatorios para Donación:</strong>
+                Toda empresa donante debe contar con RUC activo y habido ante SUNAT, Licencia de Funcionamiento de Establecimiento Farmacéutico y un Químico Farmacéutico como Director Técnico.
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Razón Social de la Empresa</label>
+                <input type="text" id="reg-rs" class="form-control" placeholder="Ej: Distribuidora Farmacéutica del Centro S.A.C." required>
+              </div>
+              <div class="form-group">
+                <label>RUC (11 dígitos)</label>
+                <input type="text" id="reg-ruc" class="form-control" placeholder="20XXXXXXXXX" maxlength="11" pattern="[0-9]{11}" required>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Tipo de Establecimiento</label>
+                <select id="reg-tipo" class="form-control">
+                  <option value="Droguería">Droguería Especializada</option>
+                  <option value="Cadena de Farmacias">Cadena de Farmacias / Boticas</option>
+                  <option value="Clínica / Hospital Privado">Clínica / Hospital Privado</option>
+                  <option value="Laboratorio Farmacéutico">Laboratorio Fabricante</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>N° Autorización Sanitaria DIGEMID</label>
+                <input type="text" id="reg-digemid" class="form-control" placeholder="Ej: AUT-DIGEMID-2024-8842" required>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Nombre del Director Técnico (Q.F.)</label>
+                <input type="text" id="reg-dt-nombre" class="form-control" placeholder="Ej: Q.F. Patricia Morales Ríos" required>
+              </div>
+              <div class="form-group">
+                <label>N° de Colegiatura CQFP</label>
+                <input type="text" id="reg-dt-cqfp" class="form-control" placeholder="Ej: 19854" maxlength="6" required>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Departamento / Provincia</label>
+                <input type="text" id="reg-prov" class="form-control" value="Lima, Lima" required>
+              </div>
+              <div class="form-group">
+                <label>Distrito de Almacén Central</label>
+                <input type="text" id="reg-dist" class="form-control" placeholder="Ej: Ate Vitarte / San Luis" required>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-red" style="width:100%; margin-top:8px;">
+              Registrar Empresa y Habilitar Carga de Excedentes
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 4. DONANTE: MIS EXCEDENTES (CON REGLAS DE 60 DÍAS Y CADENA DE FRÍO) -->
+    <div id="v-excedentes" class="view">
+      
+      <!-- BANNER DE BIENVENIDA EMPRESARIAL -->
+      <div id="empresa-banner" class="alert-box alert-info">
+        <div style="font-size:1.6rem;">🏢</div>
+        <div style="flex:1;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+            <strong id="empresa-banner-nombre" style="font-size:1.05rem; color:var(--navy);">Droguería Andina S.A.C.</strong>
+            <span class="badge badge-verde">Establecimiento Farmacéutico Certificado BPA</span>
+          </div>
+          <div id="empresa-banner-meta" style="font-size:0.8rem; color:var(--muted); margin-top:2px;">
+            RUC: 20549182311 | DT: Q.F. Carlos Mendoza (CQFP 18420) | Almacén Central: Lima
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        
+        <!-- FORMULARIO DE CARGA DE EXCEDENTES -->
+        <div class="card" style="border-top:4px solid var(--blue);">
+          <div class="card-header-bar">
+            <div>
+              <h3 style="color:var(--navy);">+ Declaración de Lote Excedente</h3>
+              <p style="font-size:0.82rem; color:var(--muted);">Sujeto a validación técnica farmacéutica</p>
+            </div>
+            <span class="badge badge-blue">PB-02 / REQ-04</span>
+          </div>
+
+          <form onsubmit="event.preventDefault(); submitExcedente();">
+            <div class="form-group">
+              <label>Medicamento (Denominación Común Internacional - DCI)</label>
+              <input type="text" id="ex-med" class="form-control" value="Amoxicilina + Ácido Clavulánico 500/125 mg" required>
+            </div>
+
+            <div class="grid-2" style="margin-bottom:0;">
+              <div class="form-group">
+                <label>Lote del Fabricante</label>
+                <input type="text" id="ex-lote" class="form-control" value="LT-7741A" required>
+              </div>
+              <div class="form-group">
+                <label>Cantidad (unidades/cajas)</label>
+                <input type="number" id="ex-qty" class="form-control" value="600" min="1" required>
+              </div>
+            </div>
+
+            <div class="grid-2" style="margin-bottom:0;">
+              <div class="form-group">
+                <label>Registro Sanitario DIGEMID</label>
+                <input type="text" id="ex-rs" class="form-control" value="EE-05491" required>
+              </div>
+              <div class="form-group">
+                <label>Fecha de Vencimiento</label>
+                <input type="date" id="ex-date" class="form-control" onchange="checkExpirationRule(this.value)" required>
+                <span class="help-warning" id="warn-expiration">
+                  ⚠️ BLOQUEO AUTOMÁTICO: La vigencia es menor a 60 días. El sistema no permite transferir lotes con caducidad crítica hacia zonas rurales.
+                </span>
+                <span class="help-hint" id="hint-expiration">Debe contar con al menos 60 días de vida útil restante.</span>
+              </div>
+            </div>
+
+            <!-- FILTRO DE CONDICIONES DE ALMACENAMIENTO (CADENA DE FRÍO) -->
+            <div class="form-group">
+              <label>Condiciones de Conservación Térmica (Exclusión Piloto)</label>
+              <select id="ex-temp" class="form-control" onchange="checkColdChainRule(this.value)">
+                <option value="ambiente">Temperatura Ambiente Controlada (15°C a 25°C) • Apto para Piloto</option>
+                <option value="frio">Cadena de Frío (2°C a 8°C - Vacunas/Biológicos) • EXCLUIDO EN PILOTO</option>
+              </select>
+              <span class="help-warning" id="warn-coldchain" style="display:none;">
+                ⚠️ EXCLUSIÓN DE PILOTO: En esta fase solo se admiten medicamentos a temperatura ambiente para evitar quiebres térmicos en el transporte rural.
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label>Integridad de Empaque y Blíster</label>
+              <select id="ex-pack" class="form-control">
+                <option value="verde">Envase original sellado con precinto íntegro (Apto)</option>
+                <option value="amarillo">Caja con deterioro cosmético leve, blíster 100% sellado (Revisión)</option>
+              </select>
+            </div>
+
+            <button type="submit" id="btn-submit-excedente" class="btn btn-blue" style="width:100%; margin-top:6px;">
+              Declarar Excedente y Enviar a Validación Sanitaria
+            </button>
+          </form>
+        </div>
+
+        <!-- LISTA DE EXCEDENTES REGISTRADOS -->
+        <div class="card" style="border-top:4px solid var(--slate);">
+          <div class="card-header-bar">
+            <div>
+              <h3 style="color:var(--navy);">Lotes Declarados por la Empresa</h3>
+              <p style="font-size:0.82rem; color:var(--muted);">Inventario disponible para el motor de matching</p>
+            </div>
+            <button class="btn btn-outline-gray btn-sm" onclick="renderInventory()">🔄 Actualizar</button>
+          </div>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Medicamento / Reg. Sanitario</th>
+                  <th>Cant.</th>
+                  <th>Lote / Venc.</th>
+                  <th>Semáforo</th>
+                </tr>
+              </thead>
+              <tbody id="tbl-excedentes"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 5. RECEPTOR: MIS NECESIDADES (POSTAS Y CENTROS DE SALUD RURALES) -->
+    <div id="v-necesidades" class="view">
+      <div class="card" style="max-width:760px; margin:0 auto; border-top:5px solid var(--blue);">
+        <div class="card-header-bar">
+          <div>
+            <h2 style="color:var(--navy); font-size:1.5rem;">Declaración de Quiebre de Stock — Establecimiento Receptor</h2>
+            <p style="font-size:0.85rem; color:var(--muted);">Publicación formal de necesidad para activar el algoritmo de matching institucional</p>
+          </div>
+          <span class="badge badge-verde">Posta Rural RENAES</span>
+        </div>
+
+        <form onsubmit="event.preventDefault(); submitNecesidad();">
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Establecimiento de Salud Solicitante</label>
+              <input type="text" id="nec-center" class="form-control" value="Posta Médica San Pedro de Canta (I-2)" required>
+            </div>
+            <div class="form-group">
+              <label>Código RENAES (MINSA)</label>
+              <input type="text" id="nec-renaes" class="form-control" value="00004128" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Medicamento Esencial Requerido (DCI / Principio Activo)</label>
+            <input type="text" id="nec-med" class="form-control" value="Paracetamol 500 mg" required>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Cantidad Requerida (unidades)</label>
+              <input type="number" id="nec-qty" class="form-control" value="800" min="1" required>
+            </div>
+            <div class="form-group">
+              <label>Nivel de Criticidad Médica (Prioridad)</label>
+              <select id="nec-urg" class="form-control">
+                <option value="Alta">🔴 Alta (Quiebre inminente de stock / Cero días)</option>
+                <option value="Media">🟡 Media (Stock proyectado menor a 15 días)</option>
+                <option value="Baja">🟢 Rutinario (Reposición planificada)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Ubicación / Red de Salud Destino</label>
+            <input type="text" id="nec-loc" class="form-control" value="Canta, Sierra de Lima — Red de Salud Canta" required>
+          </div>
+
+          <button type="submit" class="btn btn-blue" style="width:100%; margin-top:8px;">
+            Publicar Requerimiento y Activar Cruce de Oferta
+          </button>
+        </form>
+      </div>
+
+      <!-- REQUERIMIENTOS ACTIVOS EN LA RED RURAL -->
+      <div class="card" style="margin-top:20px;">
+        <h3 style="color:var(--navy); margin-bottom:12px;">Requerimientos Activos en la Red de Salud Rural</h3>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Establecimiento (RENAES)</th>
+                <th>Medicamento DCI</th>
+                <th>Cantidad</th>
+                <th>Criticidad</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-necesidades-lista"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. MATCHING INTELIGENTE MULTICRITERIO -->
+    <div id="v-matching" class="view">
+      <div class="card">
+        <div class="card-header-bar">
+          <div>
+            <h2 style="color:var(--navy); font-size:1.5rem;">Motor de Matching Institucional Multicriterio</h2>
+            <p style="font-size:0.86rem; color:var(--muted);">
+              Cruce automático según Principio Activo (DCI), Nivel de Urgencia, Tiempo de Tránsito vs. Vida Útil y Cercanía Geográfica
+            </p>
+          </div>
+          <span class="badge badge-verde">PB-05 / REQ-08</span>
+        </div>
+
+        <div class="alert-box alert-info">
+          <span>⚙️</span>
+          <div>
+            <strong>Regla Sanitaria de Exclusión en Matching:</strong>
+            El motor solo presenta y permite solicitar lotes que cuenten con <strong>dictamen VERDE (Apto)</strong> emitido por el Químico Farmacéutico. Los lotes observados (amarillo) o bloqueados (rojo) no son elegibles para transferencia.
+          </div>
+        </div>
+
+        <div id="matching-list"></div>
+      </div>
+    </div>
+
+    <!-- 7. VALIDACIÓN TÉCNICA SANITARIA (PANEL DEL QUÍMICO FARMACÉUTICO) -->
+    <div id="v-validacion" class="view">
+      <div class="grid-2">
+        
+        <div class="card">
+          <div class="card-header-bar">
+            <div>
+              <h2 style="color:var(--navy); font-size:1.4rem;">Inspección Sanitaria Técnica</h2>
+              <p style="font-size:0.82rem; color:var(--muted);">Ficha de evaluación del Director Técnico / Validador</p>
+            </div>
+            <span class="badge badge-blue">PB-04 / REQ-07</span>
+          </div>
+
+          <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:18px; margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <h4 id="val-med" style="color:var(--navy); font-size:1.2rem;">Paracetamol 500 mg</h4>
+                <p id="val-donor" style="font-size:0.84rem; color:var(--muted); margin-top:2px;">
+                  Donante: Farmacia Salud Total S.A.C. | Lote: P12345
+                </p>
+              </div>
+              <span id="val-badge" class="badge badge-verde">● Apto para Evaluación</span>
+            </div>
+            <div style="margin-top:10px; font-size:0.82rem; color:#475569; display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+              <span>• Reg. Sanitario: <strong id="val-rs">EE-01942</strong></span>
+              <span>• Vencimiento: <strong id="val-exp">2027-02-15</strong></span>
+              <span>• Temperatura: <strong>Ambiente (15-25°C)</strong></span>
+              <span>• Cantidad: <strong id="val-qty">1,000 uds</strong></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Asignar Dictamen Sanitario (Semáforo de 3 Estados)</label>
+            <select id="val-semaforo-select" class="form-control" onchange="onSemaforoChange(this.value)">
+              <option value="verde">🟢 VERDE: Lote Apto y Conforme (Autoriza Transferencia)</option>
+              <option value="amarillo">🟡 AMARILLO: Observado (Requiere subsanación documental)</option>
+              <option value="rojo">🔴 ROJO: No Apto / Bloqueado (Riesgo sanitario)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Observaciones Técnicas del Validador</label>
+            <textarea id="val-obs" class="form-control" rows="3" placeholder="Ingresa comentarios de inspección física, empaque o trazabilidad..."></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color:var(--navy); margin-bottom:14px;">Lista de Verificación Obligatoria (BPA / DIGEMID)</h3>
+          
+          <label style="display:flex; align-items:center; gap:10px; margin-bottom:12px; font-size:0.88rem; cursor:pointer;">
+            <input type="checkbox" id="chk-1" checked> <span>Registro Sanitario verificado en catálogo DIGEMID</span>
+          </label>
+          <label style="display:flex; align-items:center; gap:10px; margin-bottom:12px; font-size:0.88rem; cursor:pointer;">
+            <input type="checkbox" id="chk-2" checked> <span>Lote legible y fecha de caducidad superior a 60 días</span>
+          </label>
+          <label style="display:flex; align-items:center; gap:10px; margin-bottom:12px; font-size:0.88rem; cursor:pointer;">
+            <input type="checkbox" id="chk-3" checked> <span>Empaque primario y secundario sellados sin adulteración</span>
+          </label>
+          <label style="display:flex; align-items:center; gap:10px; margin-bottom:12px; font-size:0.88rem; cursor:pointer;">
+            <input type="checkbox" id="chk-4" checked> <span>Condición térmica ambiente controlada (No cadena de frío)</span>
+          </label>
+          <label style="display:flex; align-items:center; gap:10px; margin-bottom:12px; font-size:0.88rem; cursor:pointer;">
+            <input type="checkbox" id="chk-5" checked> <span>Ausencia de sustancias psicotrópicas o estupefacientes</span>
+          </label>
+
+          <div style="background:#f1f5f9; padding:14px; border-radius:10px; margin:16px 0;">
+            <div style="font-size:0.82rem; color:var(--muted);">Firma Digital del Profesional Validador:</div>
+            <strong id="val-qf-signature" style="color:var(--navy); font-size:0.95rem; display:block; margin-top:2px;">
+              Q.F. Elena Vargas Rojas — CQFP N° 14209
+            </strong>
+          </div>
+
+          <button class="btn btn-green" style="width:100%;" onclick="approveValidation()">
+            ✓ Emitir Dictamen y Certificar Lote
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 8. ÓRDENES DIGITALES DE TRANSFERENCIA (CÓDIGO ÚNICO CUT) -->
+    <div id="v-transferencias" class="view">
+      <div class="card">
+        <div class="card-header-bar">
+          <div>
+            <h2 style="color:var(--navy); font-size:1.5rem;">Órdenes Digitales de Transferencia (Trazabilidad CUT)</h2>
+            <p style="font-size:0.86rem; color:var(--muted);">
+              Expedientes formales con Código Único de Transferencia para fiscalización y traslado seguro
+            </p>
+          </div>
+          <span class="badge badge-blue">PB-10 / REQ-09</span>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Código Único (CUT)</th>
+                <th>Medicamento / Lote</th>
+                <th>Donante (RUC)</th>
+                <th>Destino Rural (RENAES)</th>
+                <th>Validador (CQFP)</th>
+                <th>Estado de Traslado</th>
+                <th>Comprobante</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-transferencias"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>Hampi Red — Plataforma Digital B2B de Redistribución Responsable de Medicamentos | DIGEMID • MINSA • ODS 3, 10 y 12</p>
+  </footer>
+
+  <script>
+    // --- ESTADO GLOBAL Y PERFILES INSTITUCIONALES (B2B) ---
+    var demoProfiles = {
+      donante: {
+        role: "donante",
+        roleLabel: "Donante",
+        name: "Droguería Andina S.A.C.",
+        idType: "RUC",
+        idVal: "20549182311",
+        dt: "Q.F. Carlos Mendoza",
+        cqfp: "18420",
+        location: "Lima Cercado, Lima"
+      },
+      receptor: {
+        role: "receptor",
+        roleLabel: "Receptor",
+        name: "Posta Médica San Pedro de Canta",
+        idType: "RENAES",
+        idVal: "00004128",
+        dt: "Lic. Mario Salazar (Abastecimiento)",
+        cqfp: "-",
+        location: "Canta, Sierra de Lima"
+      },
+      validador: {
+        role: "validador",
+        roleLabel: "Validador",
+        name: "Comité de Validación Sanitaria (CQFP)",
+        idType: "CQFP",
+        idVal: "14209",
+        dt: "Dra. Elena Vargas Rojas",
+        cqfp: "14209",
+        location: "Colegio Químico Farmacéutico del Perú"
+      }
+    };
+
+    var currentSession = demoProfiles.donante;
+    var selectedDemoRole = "donante";
+    var liveEmpresasCount = 348;
+
+    // --- INVENTARIO DE LOTES (EXCLUSIVAMENTE EMPRESAS) ---
+    var inventory = [
+      { id: 1, med: "Paracetamol 500 mg", qty: 1000, lot: "P12345", exp: "2026-12-30", donor: "Farmacia Salud Total S.A.C.", ruc: "20491820199", rs: "EE-01942", location: "Lima, Lima", status: "verde", temp: "ambiente" },
+      { id: 2, med: "Amoxicilina 500 mg", qty: 500, lot: "A5876", exp: "2026-09-15", donor: "Clínica San Gabriel S.A.", ruc: "20100482910", rs: "EN-03481", location: "Huancayo, Junín", status: "amarillo", temp: "ambiente" },
+      { id: 3, med: "Metformina 850 mg", qty: 200, lot: "M5432", exp: "2027-01-20", donor: "Laboratorios Unidos S.A.", ruc: "20392817291", rs: "EE-09941", location: "Lima, Lima", status: "verde", temp: "ambiente" },
+      { id: 4, med: "Omeprazol 20 mg", qty: 300, lot: "O1122", exp: "2026-11-10", donor: "Droguería Andina S.A.C.", ruc: "20549182311", rs: "EE-08812", location: "Lima, Lima", status: "verde", temp: "ambiente" }
+    ];
+
+    // --- NECESIDADES PUBLICADAS POR POSTAS RURALES ---
+    var needsList = [
+      { id: 1, center: "Posta Médica San Pedro de Canta", renaes: "00004128", med: "Paracetamol 500 mg", qty: 800, urg: "Alta", location: "Canta, Sierra de Lima" },
+      { id: 2, center: "Centro de Salud Yauyos", renaes: "00005210", med: "Amoxicilina 500 mg", qty: 400, urg: "Media", location: "Yauyos, Sierra de Lima" },
+      { id: 3, center: "Posta de Salud Huarochirí", renaes: "00006312", med: "Metformina 850 mg", qty: 200, urg: "Alta", location: "Huarochirí, Lima" }
+    ];
+
+    // --- ÓRDENES DIGITALES DE TRANSFERENCIA (CUT) ---
+    var transferOrders = [
+      {
+        cut: "HPR-2026-TRF-001",
+        med: "Omeprazol 20 mg (300 uds)",
+        lot: "O1122",
+        donor: "Droguería Andina S.A.C.",
+        donorRuc: "20549182311",
+        receiver: "Posta Médica San Pedro de Canta",
+        renaes: "00004128",
+        validator: "Q.F. Carlos Mendoza (CQFP 18420)",
+        status: "En Tránsito (TraeloYa BPDT)"
+      }
+    ];
+
+    // --- NAVEGACIÓN ENTRE VISTAS ---
+    function showView(viewId) {
+      var views = document.querySelectorAll(".view");
+      for (var i = 0; i < views.length; i++) {
+        views[i].classList.remove("active");
+      }
+
+      var tabs = document.querySelectorAll(".tab-btn");
+      for (var j = 0; j < tabs.length; j++) {
+        tabs[j].classList.remove("active");
+      }
+
+      var target = document.getElementById(viewId);
+      if (target) {
+        target.classList.add("active");
+      }
+
+      var btnId = "btn-" + viewId.replace("v-", "");
+      var activeBtn = document.getElementById(btnId);
+      if (activeBtn) {
+        activeBtn.classList.add("active");
+      }
+
+      if (window.scrollTo) {
+        window.scrollTo(0, 0);
+      }
+    }
+
+    // --- GESTIÓN DE PESTAÑAS DE LOGIN / REGISTRO ---
+    function switchLoginTab(tab) {
+      document.getElementById("auth-tab-fast").style.display = (tab === "fast") ? "block" : "none";
+      document.getElementById("auth-tab-signin").style.display = (tab === "signin") ? "block" : "none";
+      document.getElementById("auth-tab-register").style.display = (tab === "register") ? "block" : "none";
+
+      document.getElementById("subtab-btn-fast").classList.toggle("active", tab === "fast");
+      document.getElementById("subtab-btn-signin").classList.toggle("active", tab === "signin");
+      document.getElementById("subtab-btn-register").classList.toggle("active", tab === "register");
+    }
+
+    function selectDemoProfile(roleKey) {
+      selectedDemoRole = roleKey;
+      document.getElementById("card-role-donante").classList.toggle("active-role", roleKey === "donante");
+      document.getElementById("card-role-receptor").classList.toggle("active-role", roleKey === "receptor");
+      document.getElementById("card-role-validador").classList.toggle("active-role", roleKey === "validador");
+    }
+
+    function applyDemoProfile() {
+      currentSession = demoProfiles[selectedDemoRole];
+      updateSessionUI();
+      alert("Has iniciado sesión como: " + currentSession.name + " (" + currentSession.roleLabel + ")");
+      if (currentSession.role === "donante") {
+        showView("v-excedentes");
+      } else if (currentSession.role === "receptor") {
+        showView("v-necesidades");
+      } else if (currentSession.role === "validador") {
+        showView("v-validacion");
+      }
+    }
+
+    function updateSessionUI() {
+      var badge = document.getElementById("top-role-badge");
+      if (badge) {
+        badge.innerText = currentSession.roleLabel;
+        badge.className = "session-badge badge-role-" + currentSession.role;
+      }
+
+      var nameEl = document.getElementById("top-entity-name");
+      if (nameEl) nameEl.innerText = currentSession.name;
+
+      var idEl = document.getElementById("top-entity-id");
+      if (idEl) idEl.innerText = "• " + currentSession.idType + ": " + currentSession.idVal;
+
+      var dtEl = document.getElementById("top-dt-name");
+      if (dtEl) {
+        dtEl.innerText = currentSession.dt + (currentSession.cqfp !== "-" ? (" (CQFP " + currentSession.cqfp + ")") : "");
+      }
+
+      // Actualizar banner en Mis Excedentes
+      var bannerNombre = document.getElementById("empresa-banner-nombre");
+      var bannerMeta = document.getElementById("empresa-banner-meta");
+      if (bannerNombre && bannerMeta) {
+        bannerNombre.innerText = currentSession.name;
+        bannerMeta.innerText = currentSession.idType + ": " + currentSession.idVal + " | Responsable: " + currentSession.dt + " | " + currentSession.location;
+      }
+    }
+
+    function updateLoginFormFields() {
+      var type = document.getElementById("login-entity-type").value;
+      var lbl = document.getElementById("lbl-login-id");
+      var input = document.getElementById("login-identifier");
+      if (type === "donante") {
+        lbl.innerText = "RUC de la Empresa (11 dígitos)";
+        input.placeholder = "Ej: 20549182311";
+      } else if (type === "receptor") {
+        lbl.innerText = "Código RENAES del Establecimiento (MINSA)";
+        input.placeholder = "Ej: 00004128";
+      } else {
+        lbl.innerText = "N° de Colegiatura CQFP";
+        input.placeholder = "Ej: 14209";
+      }
+    }
+
+    function submitSignIn() {
+      var type = document.getElementById("login-entity-type").value;
+      var idVal = document.getElementById("login-identifier").value.trim();
+      var email = document.getElementById("login-email").value.trim();
+
+      if (!idVal) {
+        alert("Por favor ingresa el identificador institucional.");
+        return;
+      }
+
+      currentSession = {
+        role: type,
+        roleLabel: type === "donante" ? "Donante" : (type === "receptor" ? "Receptor" : "Validador"),
+        name: type === "donante" ? "Empresa Farmacéutica Autorizada" : (type === "receptor" ? "Posta de Salud Rural" : "Químico Farmacéutico Validador"),
+        idType: type === "donante" ? "RUC" : (type === "receptor" ? "RENAES" : "CQFP"),
+        idVal: idVal,
+        dt: email,
+        cqfp: type === "validador" ? idVal : "18420",
+        location: "Lima, Perú"
+      };
+
+      updateSessionUI();
+      alert("Sesión iniciada exitosamente para " + currentSession.name);
+      showView(type === "donante" ? "v-excedentes" : (type === "receptor" ? "v-necesidades" : "v-validacion"));
+    }
+
+    function submitRegisterCompany() {
+      var rs = document.getElementById("reg-rs").value.trim();
+      var ruc = document.getElementById("reg-ruc").value.trim();
+      var tipo = document.getElementById("reg-tipo").value;
+      var dt = document.getElementById("reg-dt-nombre").value.trim();
+      var cqfp = document.getElementById("reg-dt-cqfp").value.trim();
+      var dist = document.getElementById("reg-dist").value.trim();
+      var prov = document.getElementById("reg-prov").value.trim();
+
+      if (ruc.length !== 11 || isNaN(ruc)) {
+        alert("Por favor ingresa un RUC válido de 11 dígitos emitido por SUNAT.");
+        return;
+      }
+
+      currentSession = {
+        role: "donante",
+        roleLabel: "Donante",
+        name: rs,
+        idType: "RUC",
+        idVal: ruc,
+        dt: dt,
+        cqfp: cqfp,
+        location: dist + ", " + prov
+      };
+
+      liveEmpresasCount += 1;
+      var counterEl = document.getElementById("cnt-empresas");
+      if (counterEl) {
+        counterEl.innerText = liveEmpresasCount.toLocaleString();
+      }
+
+      updateSessionUI();
+      alert("¡Registro institucional completado! La empresa " + rs + " (RUC " + ruc + ") ha sido habilitada en Hampi Red.");
+      showView("v-excedentes");
+    }
+
+    // --- REGLAS TÉCNICAS: BLOQUEO < 60 DÍAS Y EXCLUSIÓN CADENA DE FRÍO ---
+    function checkExpirationRule(dateStr) {
+      if (!dateStr) return;
+      var expDate = new Date(dateStr);
+      var today = new Date();
+      var diffTime = expDate - today;
+      var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      var warn = document.getElementById("warn-expiration");
+      var hint = document.getElementById("hint-expiration");
+      var btn = document.getElementById("btn-submit-excedente");
+
+      if (diffDays < 60) {
+        warn.style.display = "block";
+        hint.style.display = "none";
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+      } else {
+        warn.style.display = "none";
+        hint.style.display = "block";
+        hint.innerText = "✓ Vigencia conforme: " + diffDays + " días restantes de vida útil (Mayor al umbral de 60 días).";
+        hint.style.color = "var(--green-dark)";
+        btn.disabled = false;
+        btn.style.opacity = "1";
+      }
+    }
+
+    function checkColdChainRule(tempVal) {
+      var warn = document.getElementById("warn-coldchain");
+      var btn = document.getElementById("btn-submit-excedente");
+      if (tempVal === "frio") {
+        warn.style.display = "block";
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+      } else {
+        warn.style.display = "none";
+        btn.disabled = false;
+        btn.style.opacity = "1";
+      }
+    }
+
+    // --- CARGA DE EXCEDENTES DE EMPRESA ---
+    function submitExcedente() {
+      var med = document.getElementById("ex-med").value.trim();
+      var lot = document.getElementById("ex-lote").value.trim();
+      var qty = parseInt(document.getElementById("ex-qty").value) || 1;
+      var exp = document.getElementById("ex-date").value;
+      var rs = document.getElementById("ex-rs").value.trim();
+      var pack = document.getElementById("ex-pack").value;
+      var temp = document.getElementById("ex-temp").value;
+
+      if (temp === "frio") {
+        alert("Regla de Exclusión: No se permiten medicamentos con cadena de frío en la fase piloto.");
+        return;
+      }
+
+      var expDate = new Date(exp);
+      var today = new Date();
+      var diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+      if (diffDays < 60) {
+        alert("Bloqueo de Caducidad (REQ-04): El lote tiene menos de 60 días de vigencia. No es admitido para transferencias rurales.");
+        return;
+      }
+
+      inventory.unshift({
+        id: Date.now(),
+        med: med,
+        qty: qty,
+        lot: lot,
+        exp: exp,
+        donor: currentSession.name,
+        ruc: currentSession.idVal,
+        rs: rs,
+        location: currentSession.location,
+        status: pack,
+        temp: temp
+      });
+
+      renderInventory();
+      alert("Lote declarado con éxito por " + currentSession.name + ". Ha pasado a la bandeja del Químico Farmacéutico para validación.");
+      renderMatches();
+    }
+
+    function renderInventory() {
+      var tbody = document.getElementById("tbl-excedentes");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      for (var i = 0; i < inventory.length; i++) {
+        var item = inventory[i];
+        var tr = document.createElement("tr");
+        var badgeClass = item.status === "verde" ? "badge-verde" : (item.status === "amarillo" ? "badge-amarillo" : "badge-rojo");
+        var badgeText = item.status === "verde" ? "🟢 Verde Apto" : (item.status === "amarillo" ? "🟡 Amarillo Revisión" : "🔴 Rojo Bloqueado");
+
+        tr.innerHTML = "<td><strong>" + item.med + "</strong><br><span style='font-size:0.75rem; color:var(--muted);'>" + item.donor + " | RS: " + item.rs + "</span></td>" +
+                       "<td>" + item.qty.toLocaleString() + "</td>" +
+                       "<td><strong>" + item.lot + "</strong><br><span style='font-size:0.75rem; color:var(--muted);'>Vence: " + item.exp + "</span></td>" +
+                       "<td><span class='badge " + badgeClass + "'>" + badgeText + "</span></td>";
+        tbody.appendChild(tr);
+      }
+    }
+
+    // --- RECEPTOR: CARGA DE NECESIDADES ---
+    function submitNecesidad() {
+      var center = document.getElementById("nec-center").value.trim();
+      var renaes = document.getElementById("nec-renaes").value.trim();
+      var med = document.getElementById("nec-med").value.trim();
+      var qty = parseInt(document.getElementById("nec-qty").value) || 1;
+      var urg = document.getElementById("nec-urg").value;
+      var loc = document.getElementById("nec-loc").value.trim();
+
+      needsList.unshift({
+        id: Date.now(),
+        center: center,
+        renaes: renaes,
+        med: med,
+        qty: qty,
+        urg: urg,
+        location: loc
+      });
+
+      renderNeedsTable();
+      alert("Requerimiento institucional de " + med + " registrado para " + center + ".");
+      renderMatches();
+      showView("v-matching");
+    }
+
+    function renderNeedsTable() {
+      var tbody = document.getElementById("tbl-necesidades-lista");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      for (var i = 0; i < needsList.length; i++) {
+        var n = needsList[i];
+        var tr = document.createElement("tr");
+        var urgBadge = n.urg === "Alta" ? "badge-rojo" : (n.urg === "Media" ? "badge-amarillo" : "badge-verde");
+        tr.innerHTML = "<td><strong>" + n.center + "</strong><br><span style='font-size:0.75rem; color:var(--muted);'>RENAES: " + n.renaes + " • " + n.location + "</span></td>" +
+                       "<td>" + n.med + "</td>" +
+                       "<td>" + n.qty.toLocaleString() + " uds</td>" +
+                       "<td><span class='badge " + urgBadge + "'>" + n.urg + "</span></td>" +
+                       "<td><button class='btn btn-outline-blue btn-sm' onclick=\"showView('v-matching')\">Ver Matches</button></td>";
+        tbody.appendChild(tr);
+      }
+    }
+
+    // --- MOTOR DE MATCHING MULTICRITERIO (PB-05) ---
+    function renderMatches() {
+      var list = document.getElementById("matching-list");
+      if (!list) return;
+      list.innerHTML = "";
+
+      var eligibleLots = inventory.filter(function(item) {
+        return item.status === "verde"; // Solo lotes verdes son aptos para matching
+      });
+
+      if (eligibleLots.length === 0) {
+        list.innerHTML = "<div class='alert-box alert-warning'>No hay lotes con dictamen VERDE disponibles actualmente. Los lotes deben ser validados por el Químico Farmacéutico antes de ser sugeridos.</div>";
+        return;
+      }
+
+      for (var i = 0; i < eligibleLots.length; i++) {
+        var item = eligibleLots[i];
+        var div = document.createElement("div");
+        div.style.cssText = "border:1px solid var(--border); border-radius:12px; padding:18px; display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; background:white; flex-wrap:wrap; gap:12px;";
+
+        var safeMed = item.med.replace(/'/g, "\\'");
+        var safeDonor = item.donor.replace(/'/g, "\\'");
+
+        div.innerHTML = "<div>" +
+          "<div style='display:flex; align-items:center; gap:8px;'><h4 style='color:var(--navy); font-size:1.1rem;'>" + item.med + "</h4><span class='badge badge-verde'>🟢 Apto para Traslado</span></div>" +
+          "<p style='font-size:0.84rem; color:var(--muted); margin-top:3px;'>" +
+            "Donante: <strong>" + item.donor + "</strong> (RUC " + item.ruc + ") | Lote: " + item.lot + " | Stock: " + item.qty.toLocaleString() + " uds" +
+          "</p>" +
+          "<div style='display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;'>" +
+            "<span class='badge badge-blue'>Principio Activo: 100% Match</span>" +
+            "<span class='badge badge-verde'>Vence: " + item.exp + " (&gt;60 días)</span>" +
+            "<span class='badge badge-verde'>98% Afinidad Logística Rural</span>" +
+          "</div>" +
+        "</div>" +
+        "<div style='display:flex; gap:8px;'>" +
+          "<button class='btn btn-red btn-sm' onclick=\"solicitarMatch('" + safeMed + "', '" + item.lot + "', '" + safeDonor + "', '" + item.ruc + "', " + item.qty + ")\">" +
+            "📋 Generar Orden CUT" +
+          "</button>" +
+          "<button class='btn btn-outline-blue btn-sm' onclick=\"prepararValidacion('" + safeMed + "', '" + safeDonor + "', '" + item.lot + "', '" + item.exp + "', '" + item.rs + "', " + item.qty + ")\">" +
+            "🔬 Ver Ficha Sanitaria" +
+          "</button>" +
+        "</div>";
+
+        list.appendChild(div);
+      }
+    }
+
+    // --- ACCIÓN DE MATCHING: GENERAR ORDEN DE TRANSFERENCIA ---
+    function solicitarMatch(med, lot, donor, ruc, qty) {
+      var cutId = "HPR-2026-TRF-" + String(Math.floor(100 + Math.random() * 900));
+      var receiverName = (currentSession.role === "receptor") ? currentSession.name : "Posta Médica San Pedro de Canta";
+      var renaesVal = (currentSession.role === "receptor") ? currentSession.idVal : "00004128";
+
+      var newOrder = {
+        cut: cutId,
+        med: med + " (" + qty.toLocaleString() + " uds)",
+        lot: lot,
+        donor: donor,
+        donorRuc: ruc,
+        receiver: receiverName,
+        renaes: renaesVal,
+        validator: "Q.F. Elena Vargas Rojas (CQFP 14209)",
+        status: "Generada - Pendiente Recojo"
+      };
+
+      transferOrders.unshift(newOrder);
+      renderTransferOrders();
+
+      alert("¡Orden Digital Generada con Éxito!\n\nCódigo Único de Transferencia: " + cutId + "\nDonante: " + donor + "\nReceptor: " + receiverName + "\n\nSe ha notificado al operador logístico para el traslado en ruta.");
+      showView("v-transferencias");
+    }
+
+    // --- VALIDACIÓN SANITARIA Q.F. (SEMÁFORO DE 3 ESTADOS) ---
+    function prepararValidacion(med, donor, lot, exp, rs, qty) {
+      document.getElementById("val-med").innerText = med;
+      document.getElementById("val-donor").innerText = "Donante: " + donor + " | Lote: " + lot;
+      document.getElementById("val-rs").innerText = rs || "EE-04921";
+      document.getElementById("val-exp").innerText = exp || "2026-12-30";
+      document.getElementById("val-qty").innerText = qty ? (qty.toLocaleString() + " uds") : "500 uds";
+      showView("v-validacion");
+    }
+
+    function onSemaforoChange(val) {
+      var badge = document.getElementById("val-badge");
+      if (val === "verde") {
+        badge.className = "badge badge-verde";
+        badge.innerText = "🟢 Apto para Transferencia";
+      } else if (val === "amarillo") {
+        badge.className = "badge badge-amarillo";
+        badge.innerText = "🟡 Observado (En Subsanación)";
+      } else {
+        badge.className = "badge badge-rojo";
+        badge.innerText = "🔴 Bloqueado (No Conforme)";
+      }
+    }
+
+    function approveValidation() {
+      var chk1 = document.getElementById("chk-1").checked;
+      var chk2 = document.getElementById("chk-2").checked;
+      var chk3 = document.getElementById("chk-3").checked;
+      var chk4 = document.getElementById("chk-4").checked;
+      var chk5 = document.getElementById("chk-5").checked;
+
+      if (!chk1 || !chk2 || !chk3 || !chk4 || !chk5) {
+        alert("Debes comprobar y marcar los 5 criterios sanitarios obligatorios de la directiva DIGEMID.");
+        return;
+      }
+
+      var dictamen = document.getElementById("val-semaforo-select").value;
+      var medText = document.getElementById("val-med").innerText;
+
+      // Actualizar estado en inventario
+      for (var i = 0; i < inventory.length; i++) {
+        if (inventory[i].med === medText) {
+          inventory[i].status = dictamen;
+        }
+      }
+
+      renderInventory();
+      renderMatches();
+
+      if (dictamen === "verde") {
+        alert("Dictamen VERDE certificado con firma digital por Q.F. Elena Vargas Rojas (CQFP 14209).\nEl lote queda formalmente habilitado para redistribución.");
+      } else if (dictamen === "amarillo") {
+        alert("Dictamen AMARILLO emitido. El lote queda en estado OBSERVADO hasta subsanación documental.");
+      } else {
+        alert("Dictamen ROJO emitido. El lote queda BLOQUEADO definitivamente.");
+      }
+
+      showView("v-matching");
+    }
 
     // --- TABLA DE ÓRDENES DIGITALES (CUT) ---
     function renderTransferOrders() {
@@ -8,20 +1550,19 @@
       for (var i = 0; i < transferOrders.length; i++) {
         var ord = transferOrders[i];
         var tr = document.createElement("tr");
-        tr.innerHTML = "<td><strong style="color:var(--blue); font-family:monospace; font-size:0.95rem;">" + ord.cut + "</strong></td>" +
-                       "<td><strong>" + ord.med + "</strong><br><span style="font-size:0.75rem; color:var(--muted);">Lote: " + ord.lot + "</span></td>" +
-                       "<td>" + ord.donor + "<br><span style="font-size:0.75rem; color:var(--muted);">RUC: " + ord.donorRuc + "</span></td>" +
-                       "<td>" + ord.receiver + "<br><span style="font-size:0.75rem; color:var(--muted);">RENAES: " + ord.renaes + "</span></td>" +
-                       "<td><span style="font-size:0.8rem;">" + ord.validator + "</span></td>" +
-                       "<td><span class="badge badge-verde">" + ord.status + "</span></td>" +
-                       "<td><button class="btn btn-outline-gray btn-sm" onclick="verComprobante('" + ord.cut + "')">📄 Ver Guía</button></td>";
+        tr.innerHTML = "<td><strong style='color:var(--blue); font-family:monospace; font-size:0.95rem;'>" + ord.cut + "</strong></td>" +
+                       "<td><strong>" + ord.med + "</strong><br><span style='font-size:0.75rem; color:var(--muted);'>Lote: " + ord.lot + "</span></td>" +
+                       "<td>" + ord.donor + "<br><span style='font-size:0.75rem; color:var(--muted);'>RUC: " + ord.donorRuc + "</span></td>" +
+                       "<td>" + ord.receiver + "<br><span style='font-size:0.75rem; color:var(--muted);'>RENAES: " + ord.renaes + "</span></td>" +
+                       "<td><span style='font-size:0.8rem;'>" + ord.validator + "</span></td>" +
+                       "<td><span class='badge badge-verde'>" + ord.status + "</span></td>" +
+                       "<td><button class='btn btn-outline-gray btn-sm' onclick=\"verComprobante('" + ord.cut + "')\">📄 Ver Guía</button></td>";
         tbody.appendChild(tr);
       }
     }
 
     function verComprobante(cut) {
-      alert("Guía Electrónica de Transferencia: " + cut + "
-Documento con firma digital de Director Técnico habilitado y operador de transporte TraeloYa Express asignado.");
+      alert("Guía Electrónica de Transferencia: " + cut + "\nDocumento con firma digital de Director Técnico habilitado y operador de transporte TraeloYa Express asignado.");
     }
 
     // --- INICIALIZACIÓN ---
